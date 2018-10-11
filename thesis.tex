@@ -52,8 +52,8 @@
     author        = Michal Hajas,
     gender        = m,
     advisor       = {RNDr. Petr Švenda, Ph.D.},
-    title         = {Analysis of pseudo-random number generators based on lightweight cryptoprimitives},
-    TeXtitle      = {Analysis of pseudo-random number generators based on lightweight cryptoprimitives},
+    title         = {Analysis of pseudo-random number generators based on lightweight cryptographic primitives},
+    TeXtitle      = {Analysis of pseudo-random number generators based on lightweight cryptographic primitives},
     keywords      = {randomness testing, cryptanalysis, block functions, lightweight cryptography, pseudo-radnom number generators},
     TeXkeywords   = {randomness testing, cryptanalysis, block functions, lightweight cryptography, pseudo-radnom number generators},
 }
@@ -202,6 +202,65 @@ We also acknowledge the support of Czech Science Foundation, the project GA16-08
 
 \chapter{Theory}
 
+\section{PRNGs requirements}
+\subsection{Constructions techniques}
+
+SIMPLE (PURE), Stream ciphers, block/hash fncs
+
+\section{Typical attacks}
+Nextbit, prevbit, seed/state recovery
+
+\section{Human cryptanalysis}
+\cite{human-cryptanalysis}
+
+\section{Distinguishers from truly random streams}
+
+One of the most important property of output from cryptographic primitive is its indistinguishability from truly random data. This is why most automatic tools for analysing cryptographic primitives are based on this fact. Those tools relies on so called empirical tests of randomness. Each tool contains several tests, where each of them has different approach of testing. Mostly they are based on some property where there is high probability that truly random generator will satisfy this property. By comparing the expected and actual results for some property we can find out so called \textit{bias}. Higher the bias is, there is less probablility that truly random generator outputted tested sequence.
+
+Tests are based on testing \textit{null hypothesis}, which is mostly formulated as data being tested are random. However those tests are based only on probability, this means that even truly random data may end up with bad results. The output of each test is so called \textit{p-value} which can be described as probability that a truly random generator produces data which are less random than the data which were tested. To interpret the result we have significance level commonly known as $\alpha$. If p-value is less than significance level we say we rejected the hypothesis on significance level $\alpha$. The common value of $\alpha$ is 0.01. \cite{nist-explanation}
+
+There are two types of errors which may occur during interpretation, Type I and Type II. Type I means that truly random data were rejected. The probability of Type I error is significance level $\alpha$. Type II error is when data from bad generator are not rejected. This is denoted by $\beta$, however it is much harder to compute value of $\beta$ because there are many possible types non-randomness which may occur. \cite{nist-explanation}
+
+The very basic and the easiest test to understand is Monobit test, which is testing uniformity of distribution of binary zeroes and ones bits within tested data. It is based on the fact, that there is high probability that the amount of binary ones and zeroes is approximately the same assuming that each sequence occurs with same probability. High-level view of this test is shown in \cref{fig:monobit}. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./images/pictures/monobit-high-level.png}
+	\caption{Monobit test from high level point of view.}
+	\label{fig:monobit}
+\end{figure}
+
+\cref{fig:whole-suite} shows high level view of whole test suite, where all tests are triggered. After evaluation of all tests, it is necessary to interpret whole run and make final decision, whether investigated data are considered truly random or not. It is quite likely that even for data with perfect properties few tests fails. Our interpretation was not based only on number of failed tests, but also on  extremeness of test failures. For example if there was one failed test within whole test suite with extreme p-value (less than $10^{-7}$) it is considered failure. On the other hand if there was even 3 failed tests with p-values close to $\alpha$, not so extreme, it is still considered as non-failure.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.9\textwidth]{./images/pictures/software-tool.png}
+	\caption{High level view of software tool run.}
+	\label{fig:whole-suite}
+\end{figure}
+
+\subsection{NIST STS}
+{NIST STS}~\cite{nist-sts} is most commonly used software tool for statistical analysis. It was developed by National Institute Of Standards and Technology (NIST) and is also part of FIPS 140-2~\cite{nist-fips-140-2} certification process. Even thought the STS test suite is most commonly used, the other testsuites have generally better results.
+
+In this thesis we will not use original NIST implementation, instead of that we are using optimized version developed Marek Sýs and Zdeněk Říha which is approximately 50 times faster than reference implementation \cite{Sys:2016:A9O:2988516.2988228}. 
+
+The tool contains 15 tests. However few of them have more variants. Therefore altogether 188 tests are executed within one run.
+
+\subsection{Dieharder}
+
+Dieharder~\cite{dieharder} is an extension of Diehard test suite \cite{diehard} developed by Robert G. Brown at Duke University. In newest version It contains together 31 tests. All tests from Diehard, three originates from NIST STS and the other implemented by the author or from different sources. However not all tests will be used within this thesis, with choosing which tests to run and which not we rely on project Randomness testing toolkit~\cite{Obratil2017thesis}
+
+\subsection{TestU01}
+
+
+TestU01~\cite{l2007testu01}
+
+\subsection{BoolTest}
+
+Statistical batteries/test suite, how it works, what statistical batteries we know, comparison of results (between batteries) based on previous experiments ....
+
+Bool test, simple, yet strong test, based on boolean function as distinguisher between truly random data and investigated data 
+
 \chapter{Introduction of CryptoStreams tool}
 \label{chap:cryptostreams}
 
@@ -217,9 +276,19 @@ Main idea behind CryptoStreams is easy production of data from crypto-primitives
 
 \section{Content of CryptoStreams}
 
-In this section we would like to present deeper details about what this tool provides. Very first cryptoprimitives which were added to CryptoStreams were candidates from SHA-3 and eStream competitions. Those additions were done by Ondrej Dubovec~\cite{Dubovec2012thesis} and Matej Prišťák~\cite{Pristak2012thesis} in 2012. Within those theses were added 34 hash functions and 27 stream ciphers. Another addition was done by Martin Ukrop in his master thesis~\cite{Ukrop2016thesis} regarding authenticated encryption systems from CAESAR competition~\cite{caesar-competition}. CryptoStreams also contains well known block ciphers like AES, DES etc. Block ciphers were added by Karel Kubíček~\cite{Kubicek2017thesis} and Tamás Rózsa~\cite{Rozsa2018thesis} in their theses. There are also lot of other cryptoprimitives added outside of thesis or papers.
+In this section we would like to present deeper details about what this tool provides. The tool currently contains 4 types of cryptographic primitives: block ciphers, hash functions, stream cipher and pseudo-random number generators. \cref{table:all-cryptoprimitives}  shows counts of function of corresponding types. Very first cryptographic primitives which were added to CryptoStreams were candidates from SHA-3 and eStream competitions. Those additions were done by Ondrej Dubovec~\cite{Dubovec2012thesis} and Matej Prišťák~\cite{Pristak2012thesis} in 2012. Within those theses were added 34 hash functions and 27 stream ciphers. Another addition was done by Martin Ukrop in his master thesis~\cite{Ukrop2016thesis} regarding authenticated encryption systems from CAESAR competition~\cite{caesar-competition}. Well known block ciphers like AES, DES etc. were added by Karel Kubíček~\cite{Kubicek2017thesis} and Tamás Rózsa~\cite{Rozsa2018thesis} in their theses. There are also lot of other cryptographic primitives added outside of theses or papers.
 
 % TODO: find citations for SHA-3 and eStream competition
+\begin{table}[t]
+	\centering	
+	\begin{tabular}{c|c c c c}
+		\textbf{\large cryptographic primitive type} &  Block ciphers &  Hash functions &  Stream ciphers &  PRNGS  \\ \hline
+		\textbf{\large Number of functions} & 42	&	51		&		27	&		6	\\
+		
+	\end{tabular}
+	\caption{List of all types of cryptographic primitives contained within CryptoStreams with corresponding number of functions.}
+	\label{table:all-cryptoprimitives}
+\end{table}
 
 Each output is generated by so called \textit{streams} which are producers of data. Each call produce chunk of data with configured size. Retrieving data from \textit{stream} in a loop and storing them results in data file with desired binary data. By configuring size of chunk and number of chunks to store it is possible to set size of resulting file. CryptoStreams contains following types of streams.
 
@@ -241,12 +310,12 @@ Each output is generated by so called \textit{streams} which are producers of da
 		\label{fig:manipulating-stream}
 	\end{figure}
 	
-	\item[\textit{Streams} based on round-reduced cryptoprimitives.] Besides the round limitation it is also possible to configure them with various types of plaintext, key and initialization vectors inputs. \cref{fig:crypto-stream} shows schema of such stream which uses block cipher. The schema may be different for other cryptoprimitives, for example hash functions do not need key or iv as an input.
+	\item[\textit{Streams} based on round-reduced cryptographic primitives.] Besides the round limitation it is also possible to configure them with various types of plaintext, key and initialization vectors inputs. \cref{fig:crypto-stream} shows schema of such stream which uses block cipher. The schema may be different for other cryptographic primitives, for example hash functions do not need key or iv as an input.
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.7\textwidth]{./images/pictures/cryptoprimitive-stream.png}
-		\caption{Example of one call from cryptoprimitive \textit{stream}, where used function is block cipher.}
+		\caption{Example of one call from cryptographic primitive \textit{stream}, where used function is block cipher.}
 		\label{fig:crypto-stream}
 	\end{figure}
 	
@@ -261,7 +330,7 @@ Each output is generated by so called \textit{streams} which are producers of da
 	
 \end{description}
 
-Notice that all inputs are in the form of another \textit{streams}. Receiving \textit{stream} is deciding how many data and when will use from \textit{streams} on its input. For example if receiving \textit{stream} is cryptoprimitive type it requests new plaintext for each chunk, but key may be generated only once in the beginning of generation. For better imagination how \textit{streams} really works, \cref{fig:config-schema} contains schema of whole run of CryptoStreams. The middle block is the most important one. It is \textit{cryptoprimitive stream} and on its input it has 3 \textit{exact streams}.
+Notice that all inputs are in the form of another \textit{streams}. Receiving \textit{stream} is deciding how many data and when will use from \textit{streams} on its input. For example if receiving \textit{stream} is cryptographic primitive type it requests new plaintext for each chunk, but key may be generated only once in the beginning of generation. For better imagination how \textit{streams} really works, \cref{fig:config-schema} contains schema of whole run of CryptoStreams. The middle block is the most important one. It is \textit{cryptographic primitive stream} and on its input it has 3 \textit{exact streams}.
 
 \begin{figure}[h]
 	\centering
@@ -288,25 +357,34 @@ Whole run of generator is deterministic as it is using pseudo-random generator. 
 
 \subsection{Testing of streams}
 
-Our statistical analysis relies on the fact that data which comes from CryptoStreams are correct and truly comes from cryptoprimitives. That is why it is very important to have proof that our implementation of each cryptoprimitive is correct one. To have this proof we introduced testsuite which contains various number of tests per individual \textit{stream}. Since CryptoStreams contains huge amount of \textit{streams}, we have not added tests for all of them, instead of that we added tests for those which are used most frequently. It is also required to have tests in order to add new \textit{stream} into CryptoStreams. All results in this thesis are based on \textit{streams} which are properly tested.
+Our statistical analysis relies on the fact that data which comes from CryptoStreams are correct and truly comes from cryptographic primitives. That is why it is very important to have proof that our implementation of each cryptographic primitive is correct one. To have this proof we introduced testsuite which contains various number of tests per individual \textit{stream}. Since CryptoStreams contains huge amount of \textit{streams}, we have not added tests for all of them, instead of that we added tests for those which are used most frequently. It is also required to have tests in order to add new \textit{stream} into CryptoStreams. All results in this thesis are based on \textit{streams} which are properly tested.
 
 Regarding implementation details we are using Google Test~\footnote{\url{https://github.com/google/googletest}} framework as testing backend. Wee are using tool Travis CI\footnote{\url{https://travis-ci.org}} for continuous integration. It means new changes are not approved unless it passes all tests including newly added tests. 
 
-There are two things which are important to test, first one is function itself, source code which is included within CryptoStreams. The other thing is CryptoStreams superstructure which encapsulates all cryptoprimitives and functions into one interface. Each type of \textit{streams} have different testing scenarios.
+There are two things which are important to test, first one is function itself, source code which is included within CryptoStreams. The other thing is CryptoStreams superstructure which encapsulates all cryptographic primitives and functions into one interface. Each type of \textit{streams} have different testing scenarios.
 
 \begin{description}
-	\item[Block ciphers \textit{streams}] are tested with test vectors in both directions, encrypt and decrypt. Also, both mentioned layers are tested. All those tests are testing function only in full number of rounds as we were not able to find test vectors for round limited version. For lightweight cryptoprimitives based \textit{streams} we added also \textit{encrypt-decrypt} test for all supported rounds. This test is testing whether encryption of plaintext followed by decryption results with inputted plaintext. However, this test does not work for all added functions, the reasons are summarized in \cref{sec:added_lightweight_crypto}.
+	\item[Block ciphers \textit{streams}] are tested with test vectors in both directions, encrypt and decrypt. Also, both mentioned layers are tested. All those tests are testing function only in full number of rounds as we were not able to find test vectors for round limited version. For lightweight cryptographic primitives based \textit{streams} we added also \textit{encrypt-decrypt} test for all supported rounds. This test is testing whether encryption of plaintext followed by decryption results with inputted plaintext. However, this test does not work for all added functions, the reasons are summarized in \cref{sec:added_lightweight_crypto}. Coverage with tests is very good for block ciphers, all 42 functions are tested with test vectors.
 	
-	\item[Hash functions \textit{streams}] are tested with test vectors in full number of rounds. Both low level function and CryptoStreams superstructure are tested.
+	\item[Hash functions \textit{streams}] are tested with test vectors in full number of rounds. Both low level function and CryptoStreams superstructure are tested. 29 out of 51 hash functions are tested.
 	
-	\item[Stream ciphers \textit{streams}] are tested similarly as block ciphers except for encrypt-decrypt test for round reduced versions.
+	\item[Stream ciphers \textit{streams}] are tested similarly as block ciphers except for encrypt-decrypt test for round reduced versions. From 27 stream ciphers 15 are tested.
 	
-	\item[Pseudo-random generators \textit{streams}] are quite hard to test, we have not found any test vectors. Nonetheless, we at least added test for linear generators, we tried to implement succession of numbers in tests and then compare whether we are getting same numbers from generator implementation. 
+	\item[Pseudo-random generators \textit{streams}] are quite hard to test, we have not found any test vectors. Nonetheless, we at least added test for linear generators, we tried to implement succession of numbers in tests and then compare whether we are getting same numbers from generator implementation. 4 tests out of 6 included in CryptoStreams are tested, however one test is testing only functionality without checking whether output is correct. 
 	
 	\item[Other \textit{streams},] exact or manipulating, are quite easy to test as we know how exactly should output look like.
 	 
 \end{description}
-
+\begin{table}[t]
+	\centering	
+	\begin{tabular}{c|c c c c}
+		\textbf{\large Crypto primitive type} &  Block ciphers &  Hash functions &  Stream ciphers &  PRNGS  \\ \hline
+		\textbf{\large Tested/All functions} & 42/42	&	29/51		&		15/27	&		4/6	\\
+		
+	\end{tabular}
+	\caption{List of all types of cryptographic primitives with number of functions covered with tests.}
+	\label{table:tested-cryptoprimitives}
+\end{table}
 
 \section{Conducted experiments}
 
@@ -331,22 +409,29 @@ The experiment we conducted was based on testing of randomness provided by funct
 
 	Creators of each cryptographic function specify how many rounds should be used in order to have reasonable security and performance. This number is called \textit{full number of rounds} and should be determined by conducting all known attacks against function limited to several number of rounds. Important indicator during this process is called \textit{security margin}. Security margin denotes the rate between round vulnerable to some cryptanalysis attack and the full number of rounds. For example authors of AES were unable to find any practical shortcut attack (any attack which is more efficient than exhaustive key search) for more than 6 rounds for AES with key length 128 bits. That is why they recommend to use 10 where 4 is security margin \cite{daemen1999aes}. Notice that \textit{security margin} is not some general notion for whole function, instead of that it is just kind of expression of resistance against particular cryptanalysis technique or attack.
 	
-	In this thesis we will investigate security margin based on indistinguishably of output of cryptoprimitive limited to all possible rounds from random stream.
+	In this thesis we investigate security margin based on indistinguishably of output of cryptographic primitive limited to all possible rounds from random stream.
 	
-	\item[Plaintext ciphertext stream] produce pairs of input and output to function. With statistical testing performed on such output, it is possible to investigate dependency between plaintext and ciphertext. However we need to be careful with deciding what input we will choose since it is part of output it must have perfect randomness properties otherwise it may cause some interference in testing result.
+	\item[Plaintext ciphertext stream] produce pairs of input and output to function. With statistical testing performed on such output, it is possible to investigate dependency between plaintext and ciphertext. However we need to be careful with deciding what input we choose since it is part of output. It must have perfect randomness properties otherwise it may cause some interference in testing result.
 
 \end{description}
 
-\subsection{Testing with statistical batteries of tests}
+\subsection{Testing with Randomness testing toolkit}
+
+For running experiments we are using tool called randomness testing toolkit (RTT). It is a project which unifies more software tools for randomness testing under one interface. It provides both graphical interface (GUI) in the form of webpage and command line interface (CLI). CLI is mainly used for submission of higher amount of experiments, since it is possible to automate it, for example with python or shell scripts. Also GUI provides webpage form for submission of an experiment, but it is much easier to use CLI for automation. Besides submission the webpage provides also interpretation of results in a consistent way between all batteries. 3 types of assessments OK, SUSPECT and FAIL are assigned to batteries based on the amount of failed test. The results of individual tests within batteries are evaluated with significance level $\alpha = 0.01$.
+
+RTT contains tests from three software tools: {NIST STS}~\cite{nist-sts}, Dieharder~\cite{dieharder} and TestU01~\cite{l2007testu01}. We used all statistical batteries which RTT provides, except for Big Crush from TestU01 because it requires at least 60GB of data per run, which would be too demanding for resources. 
+
 \subsection{Testing with BoolTest}
+
+TODO: Using metacentrum? Info about runtime...
 
 \section{Investigated pseudo-random generators}
 
-In this section we will present all functions which were added to CryptoStreams and tested with statistical batteries and Booltest~\cite{booltest-secrypt2017}.
+In this section we will present all functions which were incorporated to CryptoStreams and then investigated for indistinguishability from truly random stream.
 
 \subsection{Pure pseudo-random generators}
 
-First part of this thesis is addition to CryptoStreams and analysis of pure (do not use any crypto primitive to generate pseudo-randomness) pseudo-random number generators. It was not possible to round reduce those generators because the implementation do not provide it. Hence we only weakened them with seed with bad randomness properties. This component is quite small as we added together only six generators. The reason why we added so small amount of generator is that we have not found any source of generators which would offer generators in a way it would be easy to incorporate to CryptoStream.
+First part of this thesis is addition to CryptoStreams and analysis of pure (do not use any cryptographic primitive to generate pseudo-randomness) pseudo-random number generators. It was not possible to round reduce those generators because the implementation do not provide it. Hence we only weakened them with seed with bad randomness properties. This component is quite small as we added together only six generators. The reason why we added so small amount of generator is that we have not found any source of generators which would offer generators in a way it would be easy to incorporate to CryptoStream.
 
 First source of generators was TesU01~\cite{l2007testu01} project. It contains big amount of generators, but they offer just implementation without parameters set up. So we needed to find out those parameters ourselves and it was quite hard to choose correctly. We have taken over 3 generators and also included some basic tests. All generators are properly described in TestU01 user guide \cite{LEcuyer07testu01}.
 \begin{description}
@@ -404,14 +489,14 @@ The second source of streams is standard library of C++. Unlike TestU01 it conta
 	\label{formula:swc}
 \end{formula}
 
-\subsection{Generators based on lightweight cryptoprimitives}
+\subsection{Generators based on lightweight cryptographic primitives}
 \label{sec:added_lightweight_crypto}
 
 The other part contains block ciphers taken over from project FELICS~\cite{dinu2015felics} developed by Daniel Dinu and his group at University of Luxembourg. This project is conducting performance analysis of lightweight functions that are intended for embedded devices. We have taken over only C++ implementation of functions, as we were not interested in implementations optimized for other architectures. Also we needed to implement round reduction of functions ourselves as the project contained only full round implementation. However, provision of round reduction was not hard, mostly functions were prepared with round reduction in mind and we needed to only replace constant in loop with variable which is configurable from CryptoStreams. 
 
 Besides the main loop, functions mostly contain also key scheduling, initial and final part. Key scheduling is taking care of the creation of round key based on a encryption key. Initial and final part serves for initialization and finalization of process. We do not round-reduce any of those parts as we wanted to avoid some memory problems like uninitialized or wrongly cleaned memory.
 
-\cref{table:list-of-investigated functions} contains all investigated functions including some basic information about them. Our intention was also adding two test scenarios for each added function. First scenario is testing correct implementation with test vectors. FELICS project contains test vectors for each function, so we used those. The aim of the second test scenario is testing round reduction by doing encryption followed by decryption with function limited to all possible number of rounds. However, we were not able to make this scenario work for each function. Function without this test are marked with \textit{no} in last column in \cref{table:list-of-investigated functions}. The main reason why we were not able to make this test work is that FELICS project is not build to support it and we were not able to modify it in a way it would work. This may be caused also by non reducing of key scheduling, initial and final parts. However, the most important is that the test is passing in full round version of function and it passes for all functions. We do not consider round reduction broken in case the test does not pass.
+\cref{table:list-of-investigated functions} contains all investigated functions including some basic information about them. Our intention was also adding two test scenarios for each added function. First scenario is testing correct implementation with test vectors. FELICS project contains test vectors for each function, so we used those. The aim of the second test scenario is testing round reduction by doing encryption followed by decryption with function limited to all possible number of rounds. However, we were not able to make this scenario work for each function. Function without this test are marked with \textit{no} in last column in \cref{table:list-of-investigated functions}. The main reason why we were not able to make this test work is that FELICS project is not build to support it and we were not able to modify it in a way it would work. This may be caused also by non reducing of key scheduling, initial and final parts. However, the most important is that the test is passing in full round version of function and it passes for all functions. We do not consider round reduction broken in case the test does not pass. 
 
 \begin{table}[t]
 	\centering
@@ -453,5 +538,9 @@ Besides the main loop, functions mostly contain also key scheduling, initial and
 \printbibliography[heading=bibintoc] %% Print the bibliography.
 
 \appendix{}
+
+\chapter{Glossary}
+\label{chap:app-glos}
+
 
 \end{document}
