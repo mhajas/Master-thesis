@@ -252,11 +252,30 @@ Dieharder~\cite{dieharder} is an extension of Diehard test suite \cite{diehard} 
 
 \subsection{TestU01}
 
+TestU01 software tool was introduced by Pierre L'Ecuyer and Richard Simard. The aim of this tool is provision of general and extensive set of software tools for statistical testing of random number generators. It contains big amount of tests, more than any other software tool mentioned above. Tests are organized into 6 batteries of tests. Battery of tests is simply subset of tests, where each battery has different purpose or time consuption. Batteries within TestU01 are divided into two categories, three of them designed for sequences of real numbers and the other for bit sequences. 
 
-TestU01~\cite{l2007testu01}
+For the first category there are batteries named \textit{SmallCrush}, \textit{Crush} and \textit{BigCrush}. \textit{SmallCrush} is fastest battery, hence it is recommended to start testing with this one and continue to \textit{Crush} only if sequence pass all tests. \textit{BigCrush} is longest one, for the idea it consumes 1414 times more time than \textit{SmallCrush} and 5 times more time than \textit{Crush} to test \textit{Mersenne Twister}~\cite{Matsumoto:1998:MTE:272991.272995} PRNG on a computer with AMD Athlon running at 2.4GHz. For binary sequences there are batteries \textit{Rabbit}, \textit{Alphabit} and \textit{BlockAlphabit}. \cite{l2007testu01}
+
+Besides the batteries this software tool contains also some predefined pseudo-random number generators. Paper~\cite{l2007testu01} contains also results of those generators with batteries \textit{SmallCrush}, \textit{Crush} and \textit{BigCrush}.
 
 \subsection{BoolTest}
 
+BoolTest is simple but strong testing tool developed by Marek Sýs et. al at the Centre for Research on Cryptography and Security, Masaryk University in Brno. It has slightly different approach to randomness testing. It is a generalization of Monobit test. It is based on the idea of looking for distinguisher in the form of boolean function. The process starts with dividing sequence into blocks with size m. Then the boolean function is in the form $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m})$. Notice that Monobit test is specific case of this generalization with $m = 1$ and boolean function $f(x_{1}) = x_{1}$. 
+
+Computation of distinguisher success is quite easy process. Simply take all blocks and for each compute result of boolean function where $x_{k}$ is k-th bit of the block.
+After that expected number of computations with result binary one is computed and compared with actual results with Z-score statistic \cite{sheskin2003handbook}. This leads to resulting p-value. The more actual number distinguish from expected number, the better distinguisher we have.
+
+Construction of distinguisher is based on assumption that stronger and more complicated distinguishers can be constructed by combination of weaker and simpler ones. That is why they starts with brute-force approach, where all possible boolean function of type  $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m}) = x_{i}$ for $\forall i \in \{1, 2, \cdot \cdot \cdot, m\}$. \cite{booltest-secrypt2017}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.8\textwidth]{./images/pictures/bool-test.png}
+	\caption{Example of BoolTest run for sequence of of size 72 bits with block size 12 and number of blocks 6.}
+	\label{fig:whole-suite}
+\end{figure}
+
+
+ 
 Statistical batteries/test suite, how it works, what statistical batteries we know, comparison of results (between batteries) based on previous experiments ....
 
 Bool test, simple, yet strong test, based on boolean function as distinguisher between truly random data and investigated data 
