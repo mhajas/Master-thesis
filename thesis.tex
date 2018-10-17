@@ -261,25 +261,20 @@ Besides the batteries this software tool contains also some predefined pseudo-ra
 
 \subsection{BoolTest}
 
-BoolTest is simple but strong testing tool developed by Marek Sýs et. al at the Centre for Research on Cryptography and Security, Masaryk University in Brno. It has slightly different approach to randomness testing. It is a generalization of Monobit test. It is based on the idea of looking for distinguisher in the form of boolean function. The process starts with dividing sequence into blocks with size m. Then the boolean function is in the form $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m})$. Notice that Monobit test is specific case of this generalization with $m = 1$ and boolean function $f(x_{1}) = x_{1}$. 
+BoolTest is simple but strong testing tool developed by Marek Sýs et. al at the Centre for Research on Cryptography and Security, Masaryk University in Brno. It has slightly different approach to randomness testing. It is a generalization of Monobit test. It is based on the idea of looking for distinguisher, between truly random and tested data, in the form of boolean function. If a distinguisher is found the data are considered non-random otherwise random. The process starts with dividing sequence into blocks with size \textit{m}. The boolean function is in the form $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m})$. Notice that Monobit test is specific case of this generalization with $m = 1$ and boolean function $f(x_{1}) = x_{1}$. 
 
-Computation of distinguisher success is quite easy process. Simply take all blocks and for each compute result of boolean function where $x_{k}$ is k-th bit of the block.
-After that expected number of computations with result binary one is computed and compared with actual results with Z-score statistic \cite{sheskin2003handbook}. This leads to resulting p-value. The more actual number distinguish from expected number, the better distinguisher we have.
+Computation of distinguisher success is easy process. Simply take all blocks of size \textit{m} and for each compute result of boolean function where $x_{k}$ is k-th bit of the block.
+Expected number of computations with result binary one is computed and compared with actual results with Z-score statistic \cite{sheskin2003handbook}. This leads to resulting p-value. The more actual number distinguish from expected number, the better distinguisher we have.
 
-Construction of distinguisher is based on assumption that stronger and more complicated distinguishers can be constructed by combination of weaker and simpler ones. That is why they starts with brute-force approach, where all possible boolean function of type  $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m}) = x_{i}$ for $\forall i \in \{1, 2, \cdot \cdot \cdot, m\}$. \cite{booltest-secrypt2017}
+Construction of distinguisher is based on assumption that stronger and more complicated distinguishers can be constructed by combination of weaker and simpler ones. The run starts with brute-force evaluation of all possible boolean functions of type  $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m}) = x_{i}$ for $\forall i \in \{1, 2, \cdot \cdot \cdot, m\}$. It is also possible to choose more complex functions in this phase, but it cannot be too complicated as it is necessary to brute-force all possible functions. Then some number of best distiguishers is chosen to second phase in which they are combined them together with XOR operation. This approach has two main advantages: it is possible to use precomputed values from first phase and it is possible to stop evaluation at any time when reasonably strong distinguisher is found. If strong distinguisher is not found tested data are considered random. \cite{booltest-secrypt2017}
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./images/pictures/bool-test.png}
-	\caption{Example of BoolTest run for sequence of of size 72 bits with block size 12 and number of blocks 6.}
-	\label{fig:whole-suite}
+	\caption{Example of evaluation with BoolTest for sequence of size 72 bits with block size 12 and number of blocks 6. Evaluated boolean function (distinguisher) is $f(x_1,x_2, . . . x_{12}) = x_4+x_9$.}
+	\label{fig:bool-test}
 \end{figure}
 
-
- 
-Statistical batteries/test suite, how it works, what statistical batteries we know, comparison of results (between batteries) based on previous experiments ....
-
-Bool test, simple, yet strong test, based on boolean function as distinguisher between truly random data and investigated data 
 
 \chapter{Introduction of CryptoStreams tool}
 \label{chap:cryptostreams}
