@@ -179,6 +179,8 @@ We also acknowledge the support of Czech Science Foundation, the project GA16-08
 
 \crefname{formula}{Formula}{Formulas}
 
+\renewcommand\_{\textunderscore\allowbreak}
+
 \begin{document}
 
 % English indentation, vertical, not horizontal
@@ -266,7 +268,7 @@ BoolTest is simple but strong testing tool developed by Marek Sýs et. al at the
 Computation of distinguisher success is easy process. Simply take all blocks of size \textit{m} and for each compute result of boolean function where $x_{k}$ is k-th bit of the block.
 Expected number of computations with result binary one is computed and compared with actual results with Z-score statistic \cite{sheskin2003handbook}. This leads to resulting p-value. The more actual number distinguish from expected number, the better distinguisher we have.
 
-Construction of distinguisher is based on assumption that stronger and more complicated distinguishers can be constructed by combination of weaker and simpler ones. The run starts with brute-force evaluation of all possible boolean functions of type  $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m}) = x_{i}$ for $\forall i \in \{1, 2, \cdot \cdot \cdot, m\}$. It is also possible to choose more complex functions in this phase, but it cannot be too complicated as it is necessary to brute-force all possible functions. Then some number of best distiguishers is chosen to second phase in which they are combined them together with XOR operation. This approach has two main advantages: it is possible to use precomputed values from first phase and it is possible to stop evaluation at any time when reasonably strong distinguisher is found. If strong distinguisher is not found tested data are considered random. \cite{booltest-secrypt2017}
+Construction of distinguisher is based on assumption that stronger and more complicated distinguishers can be constructed by combination of weaker and simpler ones. The run starts with brute-force evaluation of all possible boolean functions of type  $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m}) = x_{i}$ for $\forall i \in \{1, 2, \cdot \cdot \cdot, m\}$. It is also possible to choose more complex functions in this phase, but it cannot be too complicated as it is necessary to brute-force all possible functions. Then some number of best distiguishers is chosen to second phase in which they are combined them together with XOR operation. This approach has two main advantages: it is possible to use precomputed values from first phase and it is possible to stop evaluation at any time when reasonably strong distinguisher is found. If no strong distinguisher is found tested data are considered random. \cite{booltest-secrypt2017}
 
 \begin{figure}[h]
 	\centering
@@ -279,27 +281,30 @@ Construction of distinguisher is based on assumption that stronger and more comp
 \chapter{Introduction of CryptoStreams tool}
 \label{chap:cryptostreams}
 
-CryptoStreams tool is written in C++ language and is developed and maintained by team of people\footnote{The team of randomness testing involves following people: Radka Cieslarová, Michal Hajas, Dušan Klinec, Matúš Nemec, Jiří Novotný, Ľubomír Obrátil, Marek Sýs, Petr Švenda, Martin Ukrop and others.} at the Centre for Research on Cryptography and Security, Masaryk University~\cite{CryptoStreams}. The tool is used to generate output data streams from parametrized cryptographic functions. Each stream is configurable with resulting size and with several configuration options per individual streams such as seed, plaintext or key type. 
+CryptoStreams tool is written in C++ language and is developed and maintained by team\footnote{The team of randomness testing involves following people: Radka Cieslarová, Michal Hajas, Dušan Klinec, Matúš Nemec, Jiří Novotný, Ľubomír Obrátil, Marek Sýs, Petr Švenda, Martin Ukrop and others.} at the Centre for Research on Cryptography and Security, Masaryk University~\cite{CryptoStreams}. The tool is used to generate large amount of output data streams from parametrized cryptographic functions. Each stream is configurable with multiple options including output length, structure of input plaintext, key etc. 
 
 \section{History}
 
-Initial implementation of CryptoStreams project was part of tool EACirc~\cite{EACirc} which is a tool for automatic randomness testing based on genetic programming. At that moment it served only as a provider of data to EACirc and was not possible to use it separately outside of this project. After some time we decided that CryptoStreams might be potentially interesting also as a separate tool. That is why EACirc-streams project was introduced in 2017 and then in 2018 EACirc sub-name was completely abandoned and project was renamed to nowadays name, CryptoStreams.
+An initial implementation of CryptoStreams project was part of tool EACirc~\cite{EACirc} which itself was a tool for automatic randomness testing based on genetic programming. At that moment it served only as a provider of testing data internally provided to its testing functionality and was not possible to use it separately outside of this project. We decided to split those two tools in order to provide flexible utilization with wider range of toolsin addition to EACirc. That is why EACirc-streams project was introduced in 2017 and then in 2018 was renamed to nowadays name, CryptoStreams.
 
 \section{Idea}
 
-Main idea behind CryptoStreams is easy production of data from crypto-primitives which are somehow reduced in complexity, either by limiting rounds or by providing them input with bad randomness properties. The biggest advantage is easy incorporation of new functions to CryptoStreams and after this step it is trivial to obtain data which were produced by function in somehow limited scenario. After obtaining data it is possible to do any type of investigation over those data. For example in this thesis we will conduct statistical analysis with 7 statistical batteries of tests and also with tool called Booltest~\cite{booltest-secrypt2017}. Notice, that addition of new analysis tool requires no additional implementation on side of CryptoStreams.
+Main idea behind CryptoStreams is easy production of data from cryptographic primitives which are reduced in complexity, either by limiting the number of rounds or by providing them input with bad randomness properties. The biggest advantage is that the tool contains big amount of cryptographic primitives such as block ciphers, hash functions etc. All of them are integrated within unified interface. The tool is also good as an entry point for investigation of newly created cryptographic primitives, as it is built so that addition of new primitives was as easy as possible. After obtaining data it is possible to do any type of investigation over those data. For example in this thesis we will conduct statistical analysis with 7 statistical batteries of tests and also with tool called BoolTest~\cite{booltest-secrypt2017}. Notice, that addition of new analysis tool requires no additional implementation on side of CryptoStreams.
 
 \section{Content of CryptoStreams}
 
-In this section we would like to present deeper details about what this tool provides. The tool currently contains 4 types of cryptographic primitives: block ciphers, hash functions, stream cipher and pseudo-random number generators. \cref{table:all-cryptoprimitives}  shows counts of function of corresponding types. Very first cryptographic primitives which were added to CryptoStreams were candidates from SHA-3 and eStream competitions. Those additions were done by Ondrej Dubovec~\cite{Dubovec2012thesis} and Matej Prišťák~\cite{Pristak2012thesis} in 2012. Within those theses were added 34 hash functions and 27 stream ciphers. Another addition was done by Martin Ukrop in his master thesis~\cite{Ukrop2016thesis} regarding authenticated encryption systems from CAESAR competition~\cite{caesar-competition}. Well known block ciphers like AES, DES etc. were added by Karel Kubíček~\cite{Kubicek2017thesis} and Tamás Rózsa~\cite{Rozsa2018thesis} in their theses. There are also lot of other cryptographic primitives added outside of theses or papers.
+In this section we would like to present deeper details about what this tool provides. The tool currently contains 4 types of cryptographic primitives: block ciphers, hash functions, stream cipher and pseudo-random number generators. \cref{table:all-cryptoprimitives} shows counts of functions of corresponding types. Very first cryptographic primitives which were added to CryptoStreams were candidates from SHA-3 and eStream competitions. Those additions were done by Ondrej Dubovec~\cite{Dubovec2012thesis} and Matej Prišťák~\cite{Pristak2012thesis} in 2012. Within those theses were added 34 hash functions and 27 stream ciphers. Another addition was done by Martin Ukrop in his master thesis~\cite{Ukrop2016thesis} regarding authenticated encryption systems from CAESAR competition~\cite{caesar-competition}. Well known block ciphers like AES, DES etc. were added by Karel Kubíček~\cite{Kubicek2017thesis} and Tamás Rózsa~\cite{Rozsa2018thesis} in their theses. The tool contains also lot of other cryptographic primitives added outside of theses or papers.
 
 % TODO: find citations for SHA-3 and eStream competition
 \begin{table}[t]
 	\centering	
-	\begin{tabular}{c|c c c c}
-		\textbf{\large cryptographic primitive type} &  Block ciphers &  Hash functions &  Stream ciphers &  PRNGS  \\ \hline
-		\textbf{\large Number of functions} & 42	&	51		&		27	&		6	\\
-		
+	\begin{tabular}{|c|c|}
+		\hline
+		\textbf{\large Cryptographic primitive type} &  \textbf{\large Number of functions} \\ \hline
+		Block ciphers  & 42 \\ \hline
+		Hash functions & 51 \\ \hline  
+		Stream ciphers & 27 \\ \hline
+		PRNGS 		   & 6  \\ \hline		
 	\end{tabular}
 	\caption{List of all types of cryptographic primitives contained within CryptoStreams with corresponding number of functions.}
 	\label{table:all-cryptoprimitives}
@@ -308,16 +313,22 @@ In this section we would like to present deeper details about what this tool pro
 Each output is generated by so called \textit{streams} which are producers of data. Each call produce chunk of data with configured size. Retrieving data from \textit{stream} in a loop and storing them results in data file with desired binary data. By configuring size of chunk and number of chunks to store it is possible to set size of resulting file. CryptoStreams contains following types of streams.
 
 \begin{description}
-	\item[\textit{Streams} outputing data of static structure] which are mostly used as an input \textit{streams} such as plaintext or key. Those might be for example binary zero, binary one \textit{stream} or low hamming weight stream (small amount of ones) etc. Random (pseudo-random) streams also belong to this category. \cref{fig:static-stream} shows example of schema of such \textit{stream}.
+	\item[\textit{Streams} outputing data with static structure] which are mostly used as an input \textit{streams} such as plaintext or key. Those might be for example binary zero, binary one \textit{stream} or low Hamming weight stream (small amount of ones) etc. Pseudo-random streams also belong to this category. \cref{fig:static-stream} shows example of schema of such \textit{stream}.
+	
+	The list of static streams is following:  \texttt{dummy\_stream, true\_stream, false\_stream, mt19937\_stream, pcg32\_stream, counter, random\_start\_counter, sac, sac\_fixed\_position, sac\_2d\_all\_position} and \texttt{hw\_counter}. 
+
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.5\textwidth]{./images/pictures/static-stream.png}
-		\caption{Example of one call from static \textit{stream}.}
+		\caption{Example of one call of static \textit{stream}.}
 		\label{fig:static-stream}
 	\end{figure}
 
-	\item[Manipulating \textit{streams}] are configured with one or more inputs and manipulate them in some desired way. For example, \textit{repeating stream} is repeating one output specified number of times before generating new chunk of data from input \textit{stream}. Another example is \textit{tuple stream} that is getting more \textit{streams} as an input and for each call it returns chunk which contains data from each \textit{stream} concatenated together. Schema of this \textit{stream} is shown in \cref{fig:manipulating-stream}. Using tuple stream it is possible to receive data which consists of plaintexts followed by corresponding ciphertexts. 
+	\item[Manipulating \textit{streams}] are configured with one or more inputs and manipulate them in stream-specific way. For example, \textit{repeating stream} is repeating one output specified number of times before generating new chunk of data from input \textit{stream}. Another example is \textit{tuple stream} that is getting more \textit{streams} as an input and for each call it returns chunk which contains data from each \textit{stream} concatenated together. Schema of this \textit{stream} is shown in \cref{fig:manipulating-stream}. Using tuple stream it is possible to receive data which consists of plaintexts followed by corresponding ciphertexts.
+	
+	Currently implemented streams within this category are: \texttt{ single\_value\_stream, repeating\_stream} and \texttt{tuple\_stream}.
+	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.7\textwidth]{./images/pictures/manipulating-stream.png}
@@ -325,16 +336,16 @@ Each output is generated by so called \textit{streams} which are producers of da
 		\label{fig:manipulating-stream}
 	\end{figure}
 	
-	\item[\textit{Streams} based on round-reduced cryptographic primitives.] Besides the round limitation it is also possible to configure them with various types of plaintext, key and initialization vectors inputs. \cref{fig:crypto-stream} shows schema of such stream which uses block cipher. The schema may be different for other cryptographic primitives, for example hash functions do not need key or iv as an input.
+	\item[\textit{Streams} based on round-reduced cryptographic primitives.] Besides the round limitation it is also possible to configure them with various types of plaintext, key and initialization vectors inputs. \cref{fig:crypto-stream} shows scheme of such stream which uses block cipher. The scheme may be different for other cryptographic primitives, for example hash functions do not need key or iv as an input.
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.7\textwidth]{./images/pictures/cryptoprimitive-stream.png}
-		\caption{Example of one call from cryptographic primitive \textit{stream}, where used function is block cipher.}
+		\caption{Example of one call of cryptographic primitive \textit{stream}, where used function is block cipher.}
 		\label{fig:crypto-stream}
 	\end{figure}
 	
-	\item[\textit{Streams} based on pseudo-random number generators.] Those \textit{streams} are newly introduced as part of this thesis. It is not possible to round-reduce those types of generators, this means the only way how to weaken those generators are provide them seed with bad randomness properties. As \cref{fig:prng-streams} shows those streams are seeded in the beginning and then provide infinitely many output chunks. It is also possible to reseed generator after some specified number of \textit{chunks} generated.
+	\item[\textit{Streams} based on pseudo-random number generators.] Those \textit{streams} are newly introduced as part of this thesis. It is not possible to round-reduce those types of generators, this means the only way how to weaken those generators are provide them seed with specific randomness properties for example with low Hamming weight. As \cref{fig:prng-streams} shows those streams are seeded in the beginning and then provide infinitely many output chunks. It is also possible to reseed generator after some specified number of \textit{chunks} generated.
 	
 	\begin{figure}[h]
 		\centering
@@ -345,7 +356,7 @@ Each output is generated by so called \textit{streams} which are producers of da
 	
 \end{description}
 
-Notice that all inputs are in the form of another \textit{streams}. Receiving \textit{stream} is deciding how many data and when will use from \textit{streams} on its input. For example if receiving \textit{stream} is cryptographic primitive type it requests new plaintext for each chunk, but key may be generated only once in the beginning of generation. For better imagination how \textit{streams} really works, \cref{fig:config-schema} contains schema of whole run of CryptoStreams. The middle block is the most important one. It is \textit{cryptographic primitive stream} and on its input it has 3 \textit{static streams}.
+Notice that all inputs are in the form of another \textit{streams}. Receiving \textit{stream} is deciding how much data and when will use from \textit{streams} on its input. For example if receiving \textit{stream} is cryptographic primitive type which requests new plaintext for each chunk (e.g. from input static stream), but key is random and fixed for whole generation. See the figure \cref{fig:config-schema} for an example of scheme of whole run of CryptoStreams. The middle block is the most important one. It is \textit{cryptographic primitive stream} and on its input it has 3 \textit{static streams}.
 
 \begin{figure}[h]
 	\centering
@@ -358,9 +369,9 @@ Notice that all inputs are in the form of another \textit{streams}. Receiving \t
 \subsection{Configuration}
 \label{subsec:configuration}
 
-All necessary configuration within one run is achieved by \texttt{JSON} file. Example of such configuration file can be found in \cref{fig:json-example} which will result in file of size 8GB, which contains output from function CHASKEY limited to 5 rounds. Key is generated pseudo-randomly using PCG32~\cite{pcgGen} in the beginning of run and then used for generation of each output chunk. \textit{Counter stream} is used as a plaintext. Schema of this configuration is shown in \cref{fig:config-schema}. 
+All necessary configuration within one run is achieved using \texttt{JSON} file. Example of such configuration file can be found in \cref{fig:json-example} which will result in file of size 8GB, generated from the AES function limited to 5 rounds. Key is generated pseudo-randomly using PCG32~\cite{pcgGen} in the beginning of run and then used for generation of each output chunk. \textit{Counter stream} is used to generate plaintext blocks. Scheme of this configuration is shown in \cref{fig:config-schema}. 
 
-Whole run of generator is deterministic as it is using pseudo-random generator. That is why configuration contains also seed. All values which are generated pseudo-randomly are based on this seed, in other words if you run CryptoStreams twice with the same configuration resulting files will be equal. Notice that resulting file size is derived from \texttt{chunk\_size} in Bytes and \texttt{chunk\_count}. All possible options how to configure CryptoStreams can be found in project documentation~\cite{CryptoStreams-wiki}.
+Whole run of generator is deterministic as it is using pseudo-random generator with specified seed. The experiments are therefore fully replicable using only stored \texttt{JSON} configuration. Notice that resulting file size is derived from \texttt{chunk\_size} in Bytes and \texttt{chunk\_count}. All possible options how to configure CryptoStreams can be found in project documentation~\cite{CryptoStreams-wiki}.
 
 \begin{figure}[h]
 	\centering
@@ -372,22 +383,22 @@ Whole run of generator is deterministic as it is using pseudo-random generator. 
 
 \subsection{Testing of streams}
 
-Our statistical analysis relies on the fact that data which comes from CryptoStreams are correct and truly comes from cryptographic primitives. That is why it is very important to have proof that our implementation of each cryptographic primitive is correct one. To have this proof we introduced testsuite which contains various number of tests per individual \textit{stream}. Since CryptoStreams contains huge amount of \textit{streams}, we have not added tests for all of them, instead of that we added tests for those which are used most frequently. It is also required to have tests in order to add new \textit{stream} into CryptoStreams. All results in this thesis are based on \textit{streams} which are properly tested.
+Our statistical analysis relies on the fact that data which come from CryptoStreams are correct and truly come from cryptographic primitives. For that reason we introduced testsuite which contains various number of tests per individual \textit{stream}. We have added tests only for most frequently used \textit{streams}. Tests are required also for all newly added \textit{streams}. Results in this thesis are based on \textit{streams} which are tested.
 
-Regarding implementation details we are using Google Test~\footnote{\url{https://github.com/google/googletest}} framework as testing backend. Wee are using tool Travis CI\footnote{\url{https://travis-ci.org}} for continuous integration. It means new changes are not approved unless it passes all tests including newly added tests. 
+As testing backend we are using Google Test~\footnote{\url{https://github.com/google/googletest}} framework. To ensure all tests are passing for each new change we use continuous integration tool called Travis CI\footnote{\url{https://travis-ci.org}}.
 
 There are two things which are important to test, first one is function itself, source code which is included within CryptoStreams. The other thing is CryptoStreams superstructure which encapsulates all cryptographic primitives and functions into one interface. Each type of \textit{streams} have different testing scenarios.
 
 \begin{description}
-	\item[Block ciphers \textit{streams}] are tested with test vectors in both directions, encrypt and decrypt. Also, both mentioned layers are tested. All those tests are testing function only in full number of rounds as we were not able to find test vectors for round limited version. For lightweight cryptographic primitives based \textit{streams} we added also \textit{encrypt-decrypt} test for all supported rounds. This test is testing whether encryption of plaintext followed by decryption results with inputted plaintext. However, this test does not work for all added functions, the reasons are summarized in \cref{sec:added_lightweight_crypto}. Coverage with tests is very good for block ciphers, all 42 functions are tested with test vectors.
+	\item[Block ciphers \textit{streams}] are tested with test vectors in both directions, encrypt and decrypt. Also, both mentioned layers are tested. All those tests are testing function only in full number of rounds as we were not able to find test vectors for round limited version. For lightweight cryptographic primitives based \textit{streams} we added also \textit{encrypt-decrypt} test, for all supported rounds which is testing whether encryption of plaintext followed by decryption results with inputted plaintext. However, this test does not work for all added functions, the reasons are summarized in \cref{sec:added_lightweight_crypto}. Test coverage is complete for block ciphers with all 42 functions supplied with test vectors.
 	
 	\item[Hash functions \textit{streams}] are tested with test vectors in full number of rounds. Both low level function and CryptoStreams superstructure are tested. 29 out of 51 hash functions are tested.
 	
 	\item[Stream ciphers \textit{streams}] are tested similarly as block ciphers except for encrypt-decrypt test for round reduced versions. From 27 stream ciphers 15 are tested.
 	
-	\item[Pseudo-random generators \textit{streams}] are quite hard to test, we have not found any test vectors. Nonetheless, we at least added test for linear generators, we tried to implement succession of numbers in tests and then compare whether we are getting same numbers from generator implementation. 4 tests out of 6 included in CryptoStreams are tested, however one test is testing only functionality without checking whether output is correct. 
+	\item[Pseudo-random generators \textit{streams}] are hard to test, we have not found any test vectors. Nonetheless, we at least added test for linear generators by implementing succession of numbers in tests and then compare whether we are getting same numbers from generator implementation. 4 generators out of 6 included in CryptoStreams are tested, however one test is testing only functionality without checking whether output is correct. 
 	
-	\item[Other \textit{streams},] static or manipulating, are quite easy to test as we know how exactly should output look like.
+	\item[Other \textit{streams},] static or manipulating, are easy to test as we know how exactly should output look like.
 	 
 \end{description}
 \begin{table}[t]
@@ -409,7 +420,7 @@ The experiment we conducted was based on testing of randomness provided by funct
 	\item[Special type of input,] mostly with some bad randomness properties, is provided to functions and statistical analysis is conducted where results are compared with random or other special inputs. For purposes of this thesis we used following types of inputs.
 	\begin{enumerate}
 		\item Counter \textit{stream} is such \textit{stream} in which each chunk is addition of one to previous chunk in number representation.
-		\item Low hamming weight \textit{stream} returns outputs with least count of ones it is possible. Starting with all zeroes. Then only binary one on each position, two binary ones etc.
+		\item Low Hamming weight \textit{stream} returns outputs with least count of ones it is possible. Starting with all zeroes. Then only binary one on each position, two binary ones etc.
 		\item Strict avalanche criterion is a type of \textit{stream} in which first chunk is randomly generated and every next call is just previous chunk with one flipped bit.
 	\end{enumerate}
 
