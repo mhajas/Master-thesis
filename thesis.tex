@@ -181,6 +181,10 @@ We also acknowledge the support of Czech Science Foundation, the project GA16-08
 
 \renewcommand\_{\textunderscore\allowbreak}
 
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
 \begin{document}
 
 % English indentation, vertical, not horizontal
@@ -190,6 +194,7 @@ We also acknowledge the support of Czech Science Foundation, the project GA16-08
 %% We will define several mathematical sectioning commands.
 \newtheorem{theorem}{Theorem}[section] %% The numbering of theorems
                                %% will be reset after each section.
+                               
 \newtheorem{formula}[theorem]{Formula}     %% The numbering of lemmas
 %\newtheorem{corr}[theorem]{Corrolary}  %% and corrolaries will
                                 %% share the counter with theorems.
@@ -281,19 +286,19 @@ Construction of distinguisher is based on assumption that stronger and more comp
 \chapter{Introduction of CryptoStreams tool}
 \label{chap:cryptostreams}
 
-CryptoStreams tool is written in C++ language and is developed and maintained by team\footnote{The team of randomness testing involves following people: Radka Cieslarová, Michal Hajas, Dušan Klinec, Matúš Nemec, Jiří Novotný, Ľubomír Obrátil, Marek Sýs, Petr Švenda, Martin Ukrop and others.} at the Centre for Research on Cryptography and Security, Masaryk University~\cite{CryptoStreams}. The tool is used to generate large amount of output data streams from parametrized cryptographic functions. Each stream is configurable with multiple options including output length, structure of input plaintext, key etc. 
+CryptoStreams tool is written in C++ language and is developed and maintained by team\footnote{The team of randomness testing involves following people: Radka Cieslarová, Michal Hajas, Dušan Klinec, Matúš Nemec, Jiří Novotný, Ľubomír Obrátil, Marek Sýs, Petr Švenda, Martin Ukrop and others.} at the Centre for Research on Cryptography and Security, Masaryk University~\cite{CryptoStreams}. The tool is used to generate a large amount of output data streams from parametrized cryptographic functions. Each stream is configurable with multiple options including output length, a structure of input plaintext, key, etc. 
 
 \section{History}
 
-An initial implementation of CryptoStreams project was part of tool EACirc~\cite{EACirc} which itself was a tool for automatic randomness testing based on genetic programming. At that moment it served only as a provider of testing data internally provided to its testing functionality and was not possible to use it separately outside of this project. We decided to split those two tools in order to provide flexible utilization with wider range of toolsin addition to EACirc. That is why EACirc-streams project was introduced in 2017 and then in 2018 was renamed to nowadays name, CryptoStreams.
+An initial implementation of CryptoStreams project was part of tool EACirc~\cite{EACirc} which itself was a tool for automatic randomness testing based on genetic programming. At that moment it served only as a provider of testing data internally provided to its testing functionality and was not possible to use it separately outside of this project. We decided to split those two tools to provide flexible utilization with a broader range of tools in addition to EACirc. EACirc-streams project was introduced in 2017 and then in 2018 it was renamed to nowadays name, CryptoStreams.
 
 \section{Idea}
 
-Main idea behind CryptoStreams is easy production of data from cryptographic primitives which are reduced in complexity, either by limiting the number of rounds or by providing them input with bad randomness properties. The biggest advantage is that the tool contains big amount of cryptographic primitives such as block ciphers, hash functions etc. All of them are integrated within unified interface. The tool is also good as an entry point for investigation of newly created cryptographic primitives, as it is built so that addition of new primitives was as easy as possible. After obtaining data it is possible to do any type of investigation over those data. For example in this thesis we will conduct statistical analysis with 7 statistical batteries of tests and also with tool called BoolTest~\cite{booltest-secrypt2017}. Notice, that addition of new analysis tool requires no additional implementation on side of CryptoStreams.
+The main idea behind CryptoStreams is an easy production of data from cryptographic primitives which are reduced in complexity, either by limiting the number of rounds or by providing them input with specific randomness properties, such as low Hamming weight, etc. The most significant advantage is that the tool contains a large number of cryptographic primitives such as block ciphers, hash functions, etc. All of them are integrated within a unified interface. CryptoStreams is also useful as an entry point for investigation of newly created cryptographic primitives, as it is built so that the addition of new primitives was as easy as possible. After obtaining data, it is possible to do any investigation over those data. For example, in this thesis, we conduct statistical analysis with seven statistical batteries of tests and also with a tool called BoolTest~\cite{booltest-secrypt2017}. Notice, that addition of new analysis tool requires no additional implementation on the side of CryptoStreams.
 
 \section{Content of CryptoStreams}
 
-In this section we would like to present deeper details about what this tool provides. The tool currently contains 4 types of cryptographic primitives: block ciphers, hash functions, stream cipher and pseudo-random number generators. \cref{table:all-cryptoprimitives} shows counts of functions of corresponding types. Very first cryptographic primitives which were added to CryptoStreams were candidates from SHA-3 and eStream competitions. Those additions were done by Ondrej Dubovec~\cite{Dubovec2012thesis} and Matej Prišťák~\cite{Pristak2012thesis} in 2012. Within those theses were added 34 hash functions and 27 stream ciphers. Another addition was done by Martin Ukrop in his master thesis~\cite{Ukrop2016thesis} regarding authenticated encryption systems from CAESAR competition~\cite{caesar-competition}. Well known block ciphers like AES, DES etc. were added by Karel Kubíček~\cite{Kubicek2017thesis} and Tamás Rózsa~\cite{Rozsa2018thesis} in their theses. The tool contains also lot of other cryptographic primitives added outside of theses or papers.
+In this section, we would like to present deeper details about what this tool provides. The tool currently contains four types of cryptographic primitives: block ciphers, hash functions, stream ciphers, and pseudo-random number generators. \cref{table:all-cryptoprimitives} shows counts of functions of corresponding types. First cryptographic primitives which were added to CryptoStreams were candidates from SHA-3 and eStream competitions. Those additions were done by Ondrej Dubovec~\cite{Dubovec2012thesis} and Matej Prišťák~\cite{Pristak2012thesis} in 2012. Within those theses were added 34 hash functions and 27 stream ciphers. Another addition was done by Martin Ukrop in his master thesis~\cite{Ukrop2016thesis} regarding authenticated encryption systems from CAESAR competition~\cite{caesar-competition}. Well known block ciphers like AES, DES, etc. were added by Karel Kubíček~\cite{Kubicek2017thesis} and Tamás Rózsa~\cite{Rozsa2018thesis} in their theses. The tool also contains a lot of other cryptographic primitives added outside of theses or papers.
 
 % TODO: find citations for SHA-3 and eStream competition
 \begin{table}[t]
@@ -306,14 +311,14 @@ In this section we would like to present deeper details about what this tool pro
 		Stream ciphers & 27 \\ \hline
 		PRNGS 		   & 6  \\ \hline		
 	\end{tabular}
-	\caption{List of all types of cryptographic primitives contained within CryptoStreams with corresponding number of functions.}
+	\caption{List of all types of cryptographic primitives contained within CryptoStreams with the corresponding number of functions.}
 	\label{table:all-cryptoprimitives}
 \end{table}
 
-Each output is generated by so called \textit{streams} which are producers of data. Each call produce chunk of data with configured size. Retrieving data from \textit{stream} in a loop and storing them results in data file with desired binary data. By configuring size of chunk and number of chunks to store it is possible to set size of resulting file. CryptoStreams contains following types of streams.
+Each output is generated by so-called \textit{streams} which are producers of data. Each call produces a chunk of data with configured size. Retrieving data from \textit{stream} in a loop and storing them, results in a data file with desired binary data. By configuring the size of chunk and number of chunks to save it is possible to set the size of resulting file. CryptoStreams contains the following types of streams.
 
 \begin{description}
-	\item[\textit{Streams} outputing data with static structure] which are mostly used as an input \textit{streams} such as plaintext or key. Those might be for example binary zero, binary one \textit{stream} or low Hamming weight stream (small amount of ones) etc. Pseudo-random streams also belong to this category. \cref{fig:static-stream} shows example of schema of such \textit{stream}.
+	\item[\textit{Streams} outputting data with static structure] which are mostly used as an input \textit{streams} such as plaintext or key. Those might be for example binary zero, binary one \textit{stream} or low Hamming weight stream (small amount of ones), etc. Pseudo-random streams also belong to this category. \cref{fig:static-stream} shows example of schema of such \textit{stream}.
 	
 	The list of static streams is following:  \texttt{dummy\_stream, true\_stream, false\_stream, mt19937\_stream, pcg32\_stream, counter, random\_start\_counter, sac, sac\_fixed\_position, sac\_2d\_all\_position} and \texttt{hw\_counter}. 
 
@@ -325,7 +330,7 @@ Each output is generated by so called \textit{streams} which are producers of da
 		\label{fig:static-stream}
 	\end{figure}
 
-	\item[Manipulating \textit{streams}] are configured with one or more inputs and manipulate them in stream-specific way. For example, \textit{repeating stream} is repeating one output specified number of times before generating new chunk of data from input \textit{stream}. Another example is \textit{tuple stream} that is getting more \textit{streams} as an input and for each call it returns chunk which contains data from each \textit{stream} concatenated together. Schema of this \textit{stream} is shown in \cref{fig:manipulating-stream}. Using tuple stream it is possible to receive data which consists of plaintexts followed by corresponding ciphertexts.
+	\item[Manipulating \textit{streams}] are configured with one or more inputs and manipulate them in a stream-specific way. For example, \textit{repeating stream} is repeating one output specified number of times before generating a new chunk of data from input \textit{stream}. Another example is \textit{tuple stream} that is getting more \textit{streams} as an input and for each call it returns chunk which contains data from each \textit{stream} concatenated together. Schema of this \textit{stream} is shown in \cref{fig:manipulating-stream}. Using tuple stream, it is possible to receive data which consists of plaintexts followed by corresponding ciphertexts.
 	
 	Currently implemented streams within this category are: \texttt{ single\_value\_stream, repeating\_stream} and \texttt{tuple\_stream}.
 	
@@ -336,7 +341,9 @@ Each output is generated by so called \textit{streams} which are producers of da
 		\label{fig:manipulating-stream}
 	\end{figure}
 	
-	\item[\textit{Streams} based on round-reduced cryptographic primitives.] Besides the round limitation it is also possible to configure them with various types of plaintext, key and initialization vectors inputs. \cref{fig:crypto-stream} shows scheme of such stream which uses block cipher. The scheme may be different for other cryptographic primitives, for example hash functions do not need key or iv as an input.
+	\item[\textit{Streams} based on round-reduced cryptographic primitives.] Besides the round limitation it is also possible to configure them with various types of plaintext, key and initialization vectors inputs. \cref{fig:crypto-stream} shows a scheme of such stream which uses block cipher. The scheme may be different for other cryptographic primitives, for example, hash functions do not need key or iv as an input.
+	
+	Project contains 3 types of cryptoprimitves: \texttt{block\_ciphers, stream\_ciphers} and \texttt{hash\_functions}. Number of functions wihitn corresponding category is shown in \cref{table:all-cryptoprimitives}.
 	
 	\begin{figure}[h]
 		\centering
@@ -345,23 +352,25 @@ Each output is generated by so called \textit{streams} which are producers of da
 		\label{fig:crypto-stream}
 	\end{figure}
 	
-	\item[\textit{Streams} based on pseudo-random number generators.] Those \textit{streams} are newly introduced as part of this thesis. It is not possible to round-reduce those types of generators, this means the only way how to weaken those generators are provide them seed with specific randomness properties for example with low Hamming weight. As \cref{fig:prng-streams} shows those streams are seeded in the beginning and then provide infinitely many output chunks. It is also possible to reseed generator after some specified number of \textit{chunks} generated.
+	\item[\textit{Streams} based on pseudo-random number generators.] Those \textit{streams} are newly introduced as part of this thesis. It is not possible to round-reduce those types of generators; this means the only way how to weaken those generators are to provide them seed with specific randomness properties for example with low Hamming weight. As \cref{fig:prng-streams} shows those streams are seeded in the beginning and then provide infinitely many output chunks. It is also possible to reseed generator after some specified number of \textit{chunks} generated. 
+	
+	All functions within this category are presented in \cref{sec:added_pseudo_random_generators}.
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.7\textwidth]{./images/pictures/prng-stream.png}
-		\caption{Example of three calls for new chunk with same seed from pseudo-random generator \textit{stream}.}
+		\caption{Example of three calls for a new chunk with same seed from pseudo-random generator \textit{stream}.}
 		\label{fig:prng-streams}
 	\end{figure}
 	
 \end{description}
 
-Notice that all inputs are in the form of another \textit{streams}. Receiving \textit{stream} is deciding how much data and when will use from \textit{streams} on its input. For example if receiving \textit{stream} is cryptographic primitive type which requests new plaintext for each chunk (e.g. from input static stream), but key is random and fixed for whole generation. See the figure \cref{fig:config-schema} for an example of scheme of whole run of CryptoStreams. The middle block is the most important one. It is \textit{cryptographic primitive stream} and on its input it has 3 \textit{static streams}.
+Notice that all inputs are in the form of another \textit{stream}. Receiving \textit{stream} is deciding how much data and when will use from \textit{streams} on its input. For example, if receiving \textit{stream} is a cryptographic primitive type which requests new plaintext for each chunk (e.g., from input static stream), but the key is random and fixed for the whole generation. See the figure \cref{fig:config-schema} for an example of a scheme of the whole run of CryptoStreams. The middle block is the most important one. It is \textit{cryptographic primitive stream} and on its input it has 3 \textit{static streams}.
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./images/pictures/config-schema.png}
-	\caption{Schema of CryptoStreams configuration from \cref{fig:json-example}. More information about specific \textit{streams} within this picture can be found in \cref{subsec:configuration} }
+	\caption{Scheme of CryptoStreams configuration from \cref{fig:json-example}. More information about specific \textit{streams} within this picture can be found in \cref{subsec:configuration} }
 	\label{fig:config-schema}
 \end{figure}
 
@@ -369,34 +378,34 @@ Notice that all inputs are in the form of another \textit{streams}. Receiving \t
 \subsection{Configuration}
 \label{subsec:configuration}
 
-All necessary configuration within one run is achieved using \texttt{JSON} file. Example of such configuration file can be found in \cref{fig:json-example} which will result in file of size 8GB, generated from the AES function limited to 5 rounds. Key is generated pseudo-randomly using PCG32~\cite{pcgGen} in the beginning of run and then used for generation of each output chunk. \textit{Counter stream} is used to generate plaintext blocks. Scheme of this configuration is shown in \cref{fig:config-schema}. 
+All necessary configuration within one run is achieved using a \texttt{JSON} file. Example of such configuration file can be found in \cref{fig:json-example} which will result in a file of size 8GB, generated from the AES function limited to 5 rounds. Key is generated pseudo-randomly using PCG32~\cite{pcgGen} at the beginning of a run and then used for generation of each output chunk. \textit{Counter stream} is used to generate plaintext blocks. Scheme of this configuration is shown in \cref{fig:config-schema}. 
 
-Whole run of generator is deterministic as it is using pseudo-random generator with specified seed. The experiments are therefore fully replicable using only stored \texttt{JSON} configuration. Notice that resulting file size is derived from \texttt{chunk\_size} in Bytes and \texttt{chunk\_count}. All possible options how to configure CryptoStreams can be found in project documentation~\cite{CryptoStreams-wiki}.
+The whole run of the generator is deterministic as it is using a pseudo-random generator with a specified seed. Experiments are therefore fully replicable using only stored \texttt{JSON} configuration. Notice that resulting file size is derived from \texttt{chunk\_size} in Bytes and \texttt{chunk\_count}. All possible options of configuration of CryptoStreams can be found in project documentation~\cite{CryptoStreams-wiki}.
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.7\textwidth]{./images/pictures/config.png}
-	\caption{Example of \texttt{JSON} configuration for tool CryptoStreams.}
+	\caption{Example of \texttt{JSON} configuration for the tool CryptoStreams.}
 	\label{fig:json-example}
 \end{figure}
 
 
 \subsection{Testing of streams}
 
-Our statistical analysis relies on the fact that data which come from CryptoStreams are correct and truly come from cryptographic primitives. For that reason we introduced testsuite which contains various number of tests per individual \textit{stream}. We have added tests only for most frequently used \textit{streams}. Tests are required also for all newly added \textit{streams}. Results in this thesis are based on \textit{streams} which are tested.
+Our statistical analysis relies on the fact that data which come from CryptoStreams are correct and genuinely come from cryptographic primitives. For that reason, we introduced testsuite which contains a various number of tests per individual \textit{stream}. We have added tests only for most frequently used \textit{streams}. Tests are also required for all newly added \textit{streams}. Results in this thesis are based on \textit{streams} which are tested.
 
 As testing backend we are using Google Test~\footnote{\url{https://github.com/google/googletest}} framework. To ensure all tests are passing for each new change we use continuous integration tool called Travis CI\footnote{\url{https://travis-ci.org}}.
 
-There are two things which are important to test, first one is function itself, source code which is included within CryptoStreams. The other thing is CryptoStreams superstructure which encapsulates all cryptographic primitives and functions into one interface. Each type of \textit{streams} have different testing scenarios.
+There are two things which are important to test First one is function itself, source code which is included within CryptoStreams. The other thing is CryptoStreams superstructure which encapsulates all cryptographic primitives and functions into one interface. Each type of \textit{streams} have different testing scenarios.
 
 \begin{description}
-	\item[Block ciphers \textit{streams}] are tested with test vectors in both directions, encrypt and decrypt. Also, both mentioned layers are tested. All those tests are testing function only in full number of rounds as we were not able to find test vectors for round limited version. For lightweight cryptographic primitives based \textit{streams} we added also \textit{encrypt-decrypt} test, for all supported rounds which is testing whether encryption of plaintext followed by decryption results with inputted plaintext. However, this test does not work for all added functions, the reasons are summarized in \cref{sec:added_lightweight_crypto}. Test coverage is complete for block ciphers with all 42 functions supplied with test vectors.
+	\item[Block ciphers \textit{streams}] are tested with test vectors in both directions, encrypt and decrypt. Also, both mentioned layers are tested. All those tests are testing function only in the full number of rounds as we were not able to find test vectors for round limited version. For lightweight cryptographic primitives based \textit{streams} we also added an \textit{encrypt-decrypt} test, for all supported rounds which is testing whether encryption of plaintext followed by decryption results with inputted plaintext. However, this test does not work for all added functions; the reasons are summarized in \cref{sec:added_lightweight_crypto}. Test coverage is complete for block ciphers with all 42 functions supplied with test vectors.
 	
-	\item[Hash functions \textit{streams}] are tested with test vectors in full number of rounds. Both low level function and CryptoStreams superstructure are tested. 29 out of 51 hash functions are tested.
+	\item[Hash functions \textit{streams}] are tested with test vectors in the full number of rounds. Both low-level function and CryptoStreams superstructure are included in tests. 29 out of 51 hash functions are covered with tests.
 	
 	\item[Stream ciphers \textit{streams}] are tested similarly as block ciphers except for encrypt-decrypt test for round reduced versions. From 27 stream ciphers 15 are tested.
 	
-	\item[Pseudo-random generators \textit{streams}] are hard to test, we have not found any test vectors. Nonetheless, we at least added test for linear generators by implementing succession of numbers in tests and then compare whether we are getting same numbers from generator implementation. 4 generators out of 6 included in CryptoStreams are tested, however one test is testing only functionality without checking whether output is correct. 
+	\item[Pseudo-random generators \textit{streams}] are hard to test, we have not found any test vectors. Nonetheless, we at least added test for linear generators by implementing an expected succession of numbers in tests and then compare whether we are getting same numbers from generator implementation. Four generators out of six included in CryptoStreams are tested. However, one test is testing only whether the generator is running without checking the correctness of output.
 	
 	\item[Other \textit{streams},] static or manipulating, are easy to test as we know how exactly should output look like.
 	 
@@ -408,42 +417,42 @@ There are two things which are important to test, first one is function itself, 
 		\textbf{\large Tested/All functions} & 42/42	&	29/51		&		15/27	&		4/6	\\
 		
 	\end{tabular}
-	\caption{List of all types of cryptographic primitives with number of functions covered with tests.}
+	\caption{List of all types of cryptographic primitives with the number of functions covered with tests.}
 	\label{table:tested-cryptoprimitives}
 \end{table}
 
 \section{Conducted experiments}
 
-The experiment we conducted was based on testing of randomness provided by function in some extreme scenario. Either by limitation of function rounds if it is available or by providing bad input. We tested following scenarios.
+The experiment we conducted was based on testing of randomness provided by functions in some extreme scenario. Either by the limitation of function rounds if it is available or by providing specific input. We tested the following scenarios.
 
 \begin{description}
-	\item[Special type of input,] mostly with some bad randomness properties, is provided to functions and statistical analysis is conducted where results are compared with random or other special inputs. For purposes of this thesis we used following types of inputs.
+	\item[A specific type of input,] mostly with some lousy randomness properties, is provided to functions and statistical analysis is conducted where results are compared with random or other specific inputs. For this thesis, we used the following types of inputs.
 	\begin{enumerate}
-		\item Counter \textit{stream} is such \textit{stream} in which each chunk is addition of one to previous chunk in number representation.
-		\item Low Hamming weight \textit{stream} returns outputs with least count of ones it is possible. Starting with all zeroes. Then only binary one on each position, two binary ones etc.
-		\item Strict avalanche criterion is a type of \textit{stream} in which first chunk is randomly generated and every next call is just previous chunk with one flipped bit.
+		\item Counter \textit{stream} is such \textit{stream} in which each chunk is the addition of one to the previous chunk in number representation.
+		\item Low Hamming weight \textit{stream} returns outputs with least count of ones it is possible. Starting with all zeroes followed with only binary one on each position, two binary ones, etc.
+		\item Strict avalanche criterion is a type of \textit{stream} in which the first chunk is randomly generated, and every next call is just previous chunk with one flipped bit.
 	\end{enumerate}
 
-	\item[Round reduction.] Almost each cryptographic function is build so that it performs very same sequence of operations multiple times, mostly in a loop. Number of times sequence should be performed is denoted by term \textit{number of rounds}. For example, AES~\cite{FIPS-197} has recommended number of rounds 10, 12 or 14 based on key length as you can see in \cref{fig:fips197-rounds}. Each round in AES consists of \textit{SubBytes, ShiftRows, MixColumns, AddRoundKey} operations.
+	\item[Round reduction.] Almost every cryptographic function is build so that it performs a very same sequence of operations defined number of times, mostly in a loop. The number of times sequence should be performed is denoted by term \textit{number of rounds}. For example, AES~\cite{FIPS-197} has a recommended number of rounds 10, 12 or 14 based on key length as you can see in \cref{fig:fips197-rounds}. Each round in AES consists of \textit{SubBytes, ShiftRows, MixColumns, AddRoundKey} operations. The original implementation of AES has different key scheduling phase based on the number of rounds. However, we keep key scheduling in the full number of rounds for all functions in CryptoStreams so that we avoid some undefined behavior based on uninitialized parts of the key.
 	
 	\begin{figure}[h]
 		\centering
 		\includegraphics[width=0.4\textwidth]{./images/pictures/FIPS197-Nr-table.png}
-		\caption{Table of rounds based on key size taken from~\cite{FIPS-197}, word size is 32 bits.}
+		\caption{Table of rounds based on key size which is taken from~\cite{FIPS-197}, word size is 32 bits.}
 		\label{fig:fips197-rounds}
 	\end{figure}
 
-	Creators of each cryptographic function specify how many rounds should be used in order to have reasonable security and performance. This number is called \textit{full number of rounds} and should be determined by conducting all known attacks against function limited to several number of rounds. Important indicator during this process is called \textit{security margin}. Security margin denotes the rate between round vulnerable to some cryptanalysis attack and the full number of rounds. For example authors of AES were unable to find any practical shortcut attack (any attack which is more efficient than exhaustive key search) for more than 6 rounds for AES with key length 128 bits. That is why they recommend to use 10 where 4 is security margin \cite{daemen1999aes}. Notice that \textit{security margin} is not some general notion for whole function, instead of that it is just kind of expression of resistance against particular cryptanalysis technique or attack.
+	Authors of each cryptographic function specify how many rounds should be used to have reasonable security and performance. This number is called \textit{full number of rounds} and should be determined by conducting all known attacks against function limited to several numbers of rounds. Important indicator during this process is called \textit{security margin}. Security margin denotes the rate between round vulnerable to some cryptanalysis attack and the full number of rounds. For example, at the moment it is not possible to find any practical shortcut attack (any attack which is more efficient than exhaustive key search) for more than six rounds for AES with key length 128 bits. Therefore it is recommended to add four more rounds as a security margin and use AES with ten rounds \cite{daemen1999aes}. Notice that \textit{security margin} is not some general notion for the whole function, instead of that it is just kind of expression of resistance against particular cryptanalysis technique or attack.
 	
-	In this thesis we investigate security margin based on indistinguishably of output of cryptographic primitive limited to all possible rounds from random stream.
+	In this thesis, we investigate security margin based on indistinguishability of output of cryptographic primitive limited to all possible rounds from a random stream.
 	
-	\item[Plaintext ciphertext stream] produce pairs of input and output to function. With statistical testing performed on such output, it is possible to investigate dependency between plaintext and ciphertext. However we need to be careful with deciding what input we choose since it is part of output. It must have perfect randomness properties otherwise it may cause some interference in testing result.
+	\item[Plaintext ciphertext stream] produces pairs of input and output to function. With statistical testing performed on such output, it is possible to investigate dependency between plaintext and ciphertext. Since plaintext is part of the resulting sequence it is important to choose data with good randomness properties otherwise it may cause some interference in testing results.
 
 \end{description}
 
 \subsection{Testing with Randomness testing toolkit}
 
-For running experiments we are using tool called randomness testing toolkit (RTT). It is a project which unifies more software tools for randomness testing under one interface. It provides both graphical interface (GUI) in the form of webpage and command line interface (CLI). CLI is mainly used for submission of higher amount of experiments, since it is possible to automate it, for example with python or shell scripts. Also GUI provides webpage form for submission of an experiment, but it is much easier to use CLI for automation. Besides submission the webpage provides also interpretation of results in a consistent way between all batteries. 3 types of assessments OK, SUSPECT and FAIL are assigned to batteries based on the amount of failed test. The results of individual tests within batteries are evaluated with significance level $\alpha = 0.01$.
+For running experiments, we are using a tool called randomness testing toolkit (RTT). It is a project which unifies more software tools for randomness testing under one interface. It provides both graphical interface (GUI) in the form of webpage and command line interface (CLI). CLI is mainly used for submission of a higher number of experiments due to possible automation, for example with python or shell scripts. Also GUI provides webpage form for submission of an experiment, but it is much easier to use CLI for automation. Besides the submission form, the webpage also provides an interpretation of results in a consistent way between all batteries. Three types of assessments OK, SUSPECT and FAIL are assigned to batteries based on the amount of failed test. The results of individual tests within batteries are evaluated with significance level $\alpha = 0.01$.
 
 RTT contains tests from three software tools: {NIST STS}~\cite{nist-sts}, Dieharder~\cite{dieharder} and TestU01~\cite{l2007testu01}. We used all statistical batteries which RTT provides, except for Big Crush from TestU01 because it requires at least 60GB of data per run, which would be too demanding for resources. 
 
@@ -452,20 +461,21 @@ RTT contains tests from three software tools: {NIST STS}~\cite{nist-sts}, Diehar
 TODO: Using metacentrum? Info about runtime...
 
 \section{Investigated pseudo-random generators}
+\label{sec:added_pseudo_random_generators}
 
-In this section we will present all functions which were incorporated to CryptoStreams and then investigated for indistinguishability from truly random stream.
+In this section, we will present all functions which were incorporated to CryptoStreams and then investigated for indistinguishability from the truly random stream.
 
 \subsection{Pure pseudo-random generators}
 
-First part of this thesis is addition to CryptoStreams and analysis of pure (do not use any cryptographic primitive to generate pseudo-randomness) pseudo-random number generators. It was not possible to round reduce those generators because the implementation do not provide it. Hence we only weakened them with seed with bad randomness properties. This component is quite small as we added together only six generators. The reason why we added so small amount of generator is that we have not found any source of generators which would offer generators in a way it would be easy to incorporate to CryptoStream.
+The first part of this thesis is the addition to CryptoStreams and analysis of pure (do not use any cryptographic primitive to generate pseudo-randomness) pseudo-random number generators. It was not possible to round reduce those generators because the implementation does not provide it. Hence we only weakened them with seed with specific randomness properties. This component is quite small as we added together only six generators. The reason why we added such a small amount of generator is that we have not found any source of generators which would offer generators in a way it would be easy to incorporate to CryptoStream.
 
-First source of generators was TesU01~\cite{l2007testu01} project. It contains big amount of generators, but they offer just implementation without parameters set up. So we needed to find out those parameters ourselves and it was quite hard to choose correctly. We have taken over 3 generators and also included some basic tests. All generators are properly described in TestU01 user guide \cite{LEcuyer07testu01}.
+One of the sources of generators was a TestU01~\cite{l2007testu01} project. It contains a high number of generators, but they offer just implementations without parameters set up. So we needed to find out those parameters ourselves, and it was sometimes difficult to choose correctly. Reasons for difficulties was, for example, selecting parameters so that output was long enough to fill 8 bytes of data, absence of literature for less widely used generators, etc. We have taken over three generators and also included some basic tests. All generators are appropriately described in TestU01 user guide \cite{LEcuyer07testu01}.
 \begin{description}
-	\item[Linear congruential generator.]  Definition of this generator is shown in \cref{formula:lcg}. Chosen parameters are taken from \cite{L-Ecuyer:LCG} and values are $a = 4645906587823291368$, $c = 0$ and $m = 9223372036854775783$. We tried to choose as big parameter \textit{m} as possible because generator is returning values modulo this parameter, this means outputting values are always less than this number. Since returning value from generator is always 8 Bytes long and number $ 9223372036854775783 $ have few upper bits binary zeroes, also outputting value will always have those bits binary zero. This is why we needed to cut those bits in order to not have some interference caused by this in statistical tests. This is the main reason, why we have not added more generators in this thesis because it requires too much configuration and testing to be sure the generators are working properly.
+	\item[Linear congruential generator.] Definition of this generator is shown in \cref{formula:lcg}. Chosen parameters are taken from \cite{L-Ecuyer:LCG} and values are $a = 4645906587823291368$, $c = 0$ and $m = 9223372036854775783$. We have chosen as big parameter \textit{m} as possible because the generator is outputting values modulo this parameter, this means values are always less than this number. Since returning value from the generator is always 8 bytes long and the number $ 9223372036854775783 $ have few upper bits binary zeroes, also outputting value will always have those bits binary zero. For that reason, we cut those bits to not have any interference caused by too many zeroes in statistical tests. This is the main reason for adding such a small number of generators in this thesis because it would require too much configuration and testing to be sure the generators are working properly.
 	
-	\item[Multiple recursive generator.] Another linear generator, which is based on very similar principle as LCG, with the difference that it combines data from more than one previous run. The definition is shown in \cref{formula:mrg}. Values of parameters are $ k = 2 $, $ a_{1} = 2975962250 $, $ a_{2} = 2909704450 $ and $ m = 9223372036854775783 $ \cite{L_Ecuyer:MRG}. Also we needed to cut upper binary zeroes too.
+	\item[Multiple recursive generator.] Another linear generator, which is based on a very similar principle as LCG, with the difference that it combines data from more than one previous run. The definition is shown in \cref{formula:mrg}. Values of parameters are $ k = 2 $, $ a_{1} = 2975962250 $, $ a_{2} = 2909704450 $ and $ m = 9223372036854775783 $ \cite{L_Ecuyer:MRG}. We needed to cut upper binary zeroes too.
 	
-	\item[Xorshift generator.] The generator is based on \textit{xor} and \textit{shift} operations~\cite{RePEc:jss:jstsof:v:008:i14}. We have chosen version which is created by function \texttt{uxorshift\_CreateXorshift13} and requires no additional parameters, more information in \cite{LEcuyer07testu01} on page 50. 
+	\item[Xorshift generator.] The generator is based on \textit{xor} and \textit{shift} operations~\cite{RePEc:jss:jstsof:v:008:i14}. We have chosen version which is created by function \texttt{uxorshift\_CreateXorshift13} and requires no additional parameters, more information in \cite{LEcuyer07testu01} on page 50. \\
 \end{description}
 
 \begin{formula}
@@ -473,7 +483,7 @@ First source of generators was TesU01~\cite{l2007testu01} project. It contains b
 	\begin{equation}
 	x_{n} = \left(a_{1} \times x_{\left(n-1\right)} + . . . + a_{k} \times x_{\left(n-k\right)}\right)~~\bmod~~m
 	\end{equation}
-	Where \textit{k, $a_{1} .. a_{k}$ and m} are parameters of generator hardcoded within CryptoStreams, $X_{n-l}$ is output of run $n-l$ where $n$ is current run and $l$ is number between $1$ and $k$. Seed represents initial values of $X_{1}$ to $X_{k}$ 
+	Where \textit{k, $a_{1} .. a_{k}$ and m} are parameters of the generator hardcoded within CryptoStreams, $X_{n-l}$ is an output of a run $n-l$ where $n$ is current run and $l$ is a number between $1$ and $k$. The seed represents initial values of $X_{1}$ to $X_{k}$ \\
 	
 	\label{formula:mrg}
 \end{formula}
@@ -483,20 +493,33 @@ First source of generators was TesU01~\cite{l2007testu01} project. It contains b
 	\begin{equation}
 	x_{n+1} = \left( a \times x_n + c \right)~~\bmod~~m
 	\end{equation}
-	Where \textit{a, c, m} are parameters of generator hardcoded within CryptoStreams, $X_{n-1}$ is previous value and $X_{0}$ is seed. 
+	Where \textit{a, c, m} are the parameters of the generator hardcoded within CryptoStreams, $X_{n-1}$ is a previous value and $X_{0}$ is the seed. 
 	
 	\label{formula:lcg}
 \end{formula}
 
-The second source of streams is standard library of C++. Unlike TestU01 it contains generators including parameters. It is much less difficult to take over this code as it is enough to simply use \texttt{include} directive. The only disadvantage of this source is it contains only 3 pseudo-random generators. List of generators is following.
+The second source of pseudo-random streams is the standard library of C++. Unlike TestU01 it contains generators including parameters. It is less complicated to take over this code as it is enough to use \texttt{include} directive. The only disadvantage of this source is it contains only three pseudo-random generators. List of generators is following.
 
 \begin{description}
-	\item[Linear congruential generator~\footnote{\url{https://en.cppreference.com/w/cpp/numeric/random/linear\_congruential\_engine}}.] Very same generator as we have taken over from TestU01. Definition is shown in \cref{formula:lcg}. Used parameters are $a = 48271$, $c = 0$ and $m = 2147483647$. As you can see numbers are much smaller than those we have chosen for generator from TestU01. The reason is that this generators outputs only 4 Bytes instead of 8 Bytes. 
-	
-	\item[Mersenne twister~\footnote{\url{https://en.cppreference.com/w/cpp/numeric/random/mersenne\_twister\_engine}}.] The generator is developed by Makoto Matsumoto and Takuji Nishimura \cite{Matsumoto:1998:MTE:272991.272995}. However, it does not produce cryptographically secure random numbers \cite{jakobsson2014theory}. 
-	
-	\item[Substract with carry~\footnote{\url{https://en.cppreference.com/w/cpp/numeric/random/subtract\_with\_carry_engine}}.] This type of generator was introduced by George Marsaglia and Arif Zaman \cite{marsaglia1991}. 
+	\item[Linear congruential generator~\footnotemark.] The same generator as we have taken over from TestU01. Definition is shown in \cref{formula:lcg}. Used parameters are $a = 48271$, $c = 0$ and $m = 2147483647$. As you can see numbers are much smaller, than those we have chosen for the generator from TestU01. The reason is that this generator outputs only 4 Bytes instead of 8 Bytes. 
 \end{description}
+	
+	\footnotetext{\url{https://en.cppreference.com/w/cpp/numeric/random/linear\_congruential\_engine}}
+	
+\begin{description}
+	\item[Mersenne Twister~\footnotemark.] The generator was developed by Makoto Matsumoto and Takuji Nishimura \cite{Matsumoto:1998:MTE:272991.272995}. However, it does not produce cryptographically secure random numbers \cite{jakobsson2014theory}. 
+	
+\end{description}
+
+\footnotetext{\url{https://en.cppreference.com/w/cpp/numeric/random/mersenne\_twister\_engine}}
+
+\begin{description}
+
+	\item[Substract with carry~\footnotemark.] This type of generator was introduced by George Marsaglia and Arif Zaman \cite{marsaglia1991}. \cref{formula:swc} shows definition of this generator. \\
+	
+\end{description}
+
+\footnotetext{\url{https://en.cppreference.com/w/cpp/numeric/random/subtract\_with\_carry_engine}}
 
 \begin{formula}
 	Substract with carry \cite{wiki:swc}:
@@ -511,42 +534,46 @@ The second source of streams is standard library of C++. Unlike TestU01 it conta
 			0, & \text{otherwise}
 		\end{cases}
 	\end{equation}
-	 and \textit{S,R} are parameters hardcoded in CryptoStreams. $x_{k}$ represents k-th output of generator. Seed represents initial values of $x_{1}$ to $x_{k}$ where $k = max{R, S}$.
+	 and \textit{S,R} are parameters hardcoded in CryptoStreams. $x_{k}$ represents k-th output of the generator. The seed represents initial values of $x_{1}$ to $x_{k}$ where $k = max{R, S}$.
 	\label{formula:swc}
 \end{formula}
 
 \subsection{Generators based on lightweight cryptographic primitives}
 \label{sec:added_lightweight_crypto}
 
-The other part contains block ciphers taken over from project FELICS~\cite{dinu2015felics} developed by Daniel Dinu and his group at University of Luxembourg. This project is conducting performance analysis of lightweight functions that are intended for embedded devices. We have taken over only C++ implementation of functions, as we were not interested in implementations optimized for other architectures. Also we needed to implement round reduction of functions ourselves as the project contained only full round implementation. However, provision of round reduction was not hard, mostly functions were prepared with round reduction in mind and we needed to only replace constant in loop with variable which is configurable from CryptoStreams. 
+The other part contains block ciphers taken over from project FELICS~\cite{dinu2015felics} developed by Daniel Dinu and his group at the University of Luxembourg. This project is conducting a performance analysis of lightweight functions that are intended for embedded devices. We have taken over only the C++ implementation of functions, as we were not interested in implementations optimized for other architectures. We needed to implement round reduction of functions ourselves as the project contained only full round implementation. However, provision of round reduction was mostly straightforward as functions were prepared with round reduction in mind and we only needed to replace constant in a loop with a variable which is configurable from CryptoStreams. 
 
-Besides the main loop, functions mostly contain also key scheduling, initial and final part. Key scheduling is taking care of the creation of round key based on a encryption key. Initial and final part serves for initialization and finalization of process. We do not round-reduce any of those parts as we wanted to avoid some memory problems like uninitialized or wrongly cleaned memory.
+Besides the main loop, functions mostly contain also key scheduling, initial and final part. Key scheduling is taking care of the creation of round keys based on a provided key. Initial and final part serves for initialization and finalization of the process. We do not round-reduce any of those parts as we wanted to avoid some memory problems like uninitialized or wrongly cleaned memory.
 
-\cref{table:list-of-investigated functions} contains all investigated functions including some basic information about them. Our intention was also adding two test scenarios for each added function. First scenario is testing correct implementation with test vectors. FELICS project contains test vectors for each function, so we used those. The aim of the second test scenario is testing round reduction by doing encryption followed by decryption with function limited to all possible number of rounds. However, we were not able to make this scenario work for each function. Function without this test are marked with \textit{no} in last column in \cref{table:list-of-investigated functions}. The main reason why we were not able to make this test work is that FELICS project is not build to support it and we were not able to modify it in a way it would work. This may be caused also by non reducing of key scheduling, initial and final parts. However, the most important is that the test is passing in full round version of function and it passes for all functions. We do not consider round reduction broken in case the test does not pass. 
+\cref{table:list-of-investigated functions} contains all investigated functions including some basic information about them. Our intention was also adding two test scenarios, for testing correctness of implementation, for each added function. 
+
+The first scenario is testing all functions with test vectors in full number of rounds. Test vectors were taken over from project FELICS. 
+
+The aim of the second test scenario is testing round-reduction by doing encryption followed by decryption with function limited to all possible number of rounds. However, we were not able to make this scenario work for 6 functions, they are marked with \textit{\xmark} in last column in \cref{table:list-of-investigated functions}. We admit the round-reduction might be broken for those functions; however we included them in the statistical testing and round-reduction behave correctly from randomness point of view. Lower rounds are not passing statistical tests, and an addition of more rounds improves statistical properties of the output. The failure of the Encrypt-Decrypt test may be caused by the fact that we do not reduce key scheduling, initial and final parts. This reason would correspond with observed behavior in which the functional part of round-reduction is broken (Encrypt-Decrypt test) while output's randomness properties are correct (statistical analysis). 
 
 \begin{table}[t]
 	\centering
 	\begin{tabular}{c|c c c c}
-		\textbf{\large Function} & \textbf{\large Round} & \textbf{\large Block size} & \textbf{\large Key size} & \textbf{\large Encrypt Decrypt test}\\ \hline
-		Chaskey~\cite{cryptoeprint:2014:386}				& 16	& 16	& 16	& yes 	\\ \hline
-		Fantomas~\cite{grosso2014ls}						& 12	& 16	& 16	& yes 	\\ \hline
-		HIGHT~\cite{10.1007/11894063_4}						& 32	& 8		& 16	& no 	\\ \hline
-		LBlock~\cite{10.1007/978-3-642-21554-4_19}			& 32	& 8		& 10	& no \\ \hline
-		LEA~\cite{Hong2013LEAA1}							& 24	& 16	& 16	& no \\ \hline
-		LED~\cite{Guo:2011:LBC:2044928.2044958}				& 48	& 8		& 10	& yes \\ \hline
-		Piccolo~\cite{10.1007/978-3-642-23951-9_23}			& 25	& 8		& 10	& yes \\ \hline
-		PRIDE~\cite{10.1007/978-3-662-44371-2_4}			& 20	& 8		& 16	& no  \\ \hline
-		PRINCE~\cite{10.1007/978-3-642-34961-4_14}			& 12	& 8		& 16	& yes \\ \hline
-		RC5-20~\cite{10.1007/3-540-60590-8_7}				& 20	& 8		& 10	& yes \\ \hline
-		RECTANGLE-K80~\cite{Zhang2015}						& 25	& 8		& 16	& no \\ \hline
-		RECTANGLE-K128~\cite{Zhang2015}						& 25	& 8		& 16	& no \\ \hline
-		RoadRunneR-K80~\cite{10.1007/978-3-319-29078-2_4}	& 10	& 8		& 10	& yes \\ \hline
-		RoadRunneR-K128~\cite{10.1007/978-3-319-29078-2_4}	& 12	& 8		& 16	& yes \\ \hline
-		Robin~\cite{grosso2014ls}							& 16	& 16	& 16	& yes \\ \hline
-		RobinStar~\cite{grosso2014ls}						& 16	& 16	& 16	& yes \\ \hline
-		SPARX-B64~\cite{10.1007/978-3-662-53887-6_18}		& 8		& 8		& 16	& yes \\ \hline
-		SPARX-B128~\cite{10.1007/978-3-662-53887-6_18}		& 8		& 16	& 16	& yes \\ \hline
-		TWINE~\cite{twine}									& 35	& 8		& 10	& yes \\ \hline
+		\textbf{\large Function} & \textbf{\large Round} & \textbf{\large Block size} & \textbf{\large Key size} & \textbf{\large Encrypt-Decrypt test}\\ \hline
+		Chaskey~\cite{cryptoeprint:2014:386}				& 16	& 16	& 16	& \cmark	\\ \hline
+		Fantomas~\cite{grosso2014ls}						& 12	& 16	& 16	& \cmark 	\\ \hline
+		HIGHT~\cite{10.1007/11894063_4}						& 32	& 8		& 16	& \xmark 	\\ \hline
+		LBlock~\cite{10.1007/978-3-642-21554-4_19}			& 32	& 8		& 10	& \xmark \\ \hline
+		LEA~\cite{Hong2013LEAA1}							& 24	& 16	& 16	& \xmark \\ \hline
+		LED~\cite{Guo:2011:LBC:2044928.2044958}				& 48	& 8		& 10	& \cmark \\ \hline
+		Piccolo~\cite{10.1007/978-3-642-23951-9_23}			& 25	& 8		& 10	& \cmark \\ \hline
+		PRIDE~\cite{10.1007/978-3-662-44371-2_4}			& 20	& 8		& 16	& \xmark  \\ \hline
+		PRINCE~\cite{10.1007/978-3-642-34961-4_14}			& 12	& 8		& 16	& \cmark \\ \hline
+		RC5-20~\cite{10.1007/3-540-60590-8_7}				& 20	& 8		& 10	& \cmark \\ \hline
+		RECTANGLE-K80~\cite{Zhang2015}						& 25	& 8		& 16	& \xmark \\ \hline
+		RECTANGLE-K128~\cite{Zhang2015}						& 25	& 8		& 16	& \xmark \\ \hline
+		RoadRunneR-K80~\cite{10.1007/978-3-319-29078-2_4}	& 10	& 8		& 10	& \cmark \\ \hline
+		RoadRunneR-K128~\cite{10.1007/978-3-319-29078-2_4}	& 12	& 8		& 16	& \cmark \\ \hline
+		Robin~\cite{grosso2014ls}							& 16	& 16	& 16	& \cmark \\ \hline
+		RobinStar~\cite{grosso2014ls}						& 16	& 16	& 16	& \cmark \\ \hline
+		SPARX-B64~\cite{10.1007/978-3-662-53887-6_18}		& 8		& 8		& 16	& \cmark \\ \hline
+		SPARX-B128~\cite{10.1007/978-3-662-53887-6_18}		& 8		& 16	& 16	& \cmark \\ \hline
+		TWINE~\cite{twine}									& 35	& 8		& 10	& \cmark \\ \hline
 		
 		
 	\end{tabular}
