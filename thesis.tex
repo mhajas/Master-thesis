@@ -98,6 +98,8 @@ We also acknowledge the support of Czech Science Foundation, the project GA16-08
 \usepackage{url}
 \usepackage{menukeys}
 
+\usepackage[]{algorithm2e}
+
 % cref, has to be loaded after hyperref
 \usepackage{hyperref}
 \usepackage[noabbrev,capitalise]{cleveref}
@@ -118,6 +120,9 @@ We also acknowledge the support of Czech Science Foundation, the project GA16-08
 % my colours
 \usepackage{xcolor}
 
+\usepackage{listings}   % fancy code listings
+\captionsetup[lstlisting]{singlelinecheck=false, margin=0pt, font={sf,sl,footnotesize}}
+
 \usepackage{minted}
 
 %% My own inputs:
@@ -131,6 +136,7 @@ We also acknowledge the support of Czech Science Foundation, the project GA16-08
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning}
 \usetikzlibrary{decorations.pathreplacing}
+
 
 % package to make bullet list nicer
 \usepackage{enumitem}
@@ -219,17 +225,116 @@ SIMPLE (PURE), Stream ciphers, block/hash fncs
 Nextbit, prevbit, seed/state recovery
 
 \section{Human cryptanalysis}
-\cite{human-cryptanalysis}
+
+In this section, we present two cryptanalysis techniques. Both of them are very powerful; however, they are not fully automated. The cooperation with cryptanalyst is necessary. The first is Linear cryptanalysis which was introduced by Matsui \cite{matsui1993linear} in 1993 as a theoretical attack on Data Encryption Standard (DES). The other is differential cryptanalysis and was proposed by Biham and Shamir \cite{Biham1991} in 1991 with the same objective, to attack DES.
+
+
+\subsection{Linear cryptanalysis}
+
+It is one of the most famous known plaintext attacks against block ciphers; attacker knows some number of plaintext/ciphertext pairs, but he is not able to choose specific ones. 
+
+The attack is based on building a linear approximation of part of a block cipher (non-linear), which consists of bits of plaintext, ciphertext, and key (round subkey). The general form of such approximation is following: 
+\begin{equation}
+\left( \bigoplus_{i \in \{1...b\}} P_{i} \right) \oplus \left( \bigoplus_{j \in \{1...b\}} C_{j} \right) = \left( \bigoplus_{k \in \{1...s\}} K_{k} \right)
+\label{eq:general_approx}
+\end{equation}
+where $P_{i}$, $C_{j}$ and $K_{k}$ denote $i,j,k$-th bit of plaintext, ciphertext and key respectively. $\oplus$ stands for boolean \texttt{XOR} operator. Variables b and s are function specific and represent block size and key size. \cite{junod2000linear} 
+
+Given such approximation and perfect cipher, the probability that this approximation holds should be $p = \frac{1}{2}$. Probability $p$ can be computed from the structure of investigated function. For purposes of the attack we need to find approximation which maximizes the bias $\epsilon = \lvert p - \frac{1}{2} \rvert$. 
+
+The linear approximation can be used to perform two types of attacks:
+
+\begin{description}
+	\item[Obtaining one-bit information about the key.] Given the approximation in the form of \cref{eq:general_approx}, it is possible to obtain one-bit value of $X = \left( \bigoplus_{k \in \{1...s\}} K_{k} \right)$ following \cref{alg:one-bit}. \cite{junod2000linear}
+	
+	\begin{algorithm}[H]
+		\KwData{$T$ denotes the number of results which equal to 0 when computing value of approximation for $N$ plaintext/ciphertext pairs.}
+
+		\eIf{$T > \frac{N}{2}$}{
+
+			$X = \begin{cases}
+					0, & p > \frac{1}{2} \\
+					1, & \text{otherwise}
+				\end{cases}
+			$
+		}{
+			$X = \begin{cases}
+					1, & p > \frac{1}{2} \\
+					0, & \text{otherwise}
+				\end{cases}
+			$
+		}
+		
+		\caption{Obtaining one bit information about key using the linear approximation.} 
+		\label{alg:one-bit}
+	\end{algorithm}
+	
+	\item[Obtaining more bits of the key.] For demonstrating this type of attack, we will follow the tutorial from \cite{human-cryptanalysis} published by Howard M. Heys. He is attacking Substitution Permutation Network (SPN) defined within this paper. This function has four rounds; the size of subkey for each round and block is 16 bits. Each round consists of these operations: \texttt{mixing with subkey}, \texttt{substitution}, \texttt{permutation}. There are five subkeys because last round contains one more \texttt{mixing with subkey} at the end. Used notation is following.
+	
+	\begin{itemize}
+		\item $K_{k,i}$ is an i-th bit of subkey for a k-th round. ($k \in \{1..5\}, i \in \{1..16\}$)
+		\item $V_{j,i}$ is an i-th bit of output of a j-th round. ($j \in \{1..4\}, i \in \{1..16\}$)
+		\item $U_{l,i}$ is an i-th bit of input to an i-th round. ($i \in \{1..4\}, i \in \{1..16\}$)
+		
+		$U_{i} = \begin{cases}
+		P \bigoplus K_{1}, & i = 1 \\
+		V_{i-1} \bigoplus K_{i}, & \text{otherwise}
+		\end{cases}
+		$
+	\end{itemize}
+
+	Heys is performing attack using 3-round approximation with probability either $p = \frac{15}{32}$ or $p = \frac{17}{32}$ based on specific subkeys. Key bits are omitted from the equation because the xor of all key bits results into fixed 0 or 1 bit which does not change resulting bias $\epsilon = \frac{1}{32}$. The approximation is following.   
+	
+	\begin{equation}
+	U_{4,6} \oplus U_{4,8} \oplus U_{4,14} \oplus U_{4,16} \oplus P_{5} \oplus P_{7} \oplus P_{8} = 0
+	\label{eq:linear-approximation-heys}
+	\end{equation}
+	
+	Using this formula, it is possible to attack the last subkey $K_5$ by performing steps below.
+	
+	\begin{enumerate}
+		\item Generate all possible options for subkey $K_{5}$ ($2^{16}$).
+		\item For each of $N$ collected plaintext/ciphertext pair obtain bits of $U_{4}$ by reversing last round. 
+		\item Apply the linear approximation (\cref{eq:linear-approximation-heys}) to captured bits and plaintext.
+		\item For each subkey remember the number of pairs the approximation resulted with 0.  
+		\item A subkey which ended up with a number which is most significantly different from $\frac{N}{2}$ is considered correct guess.
+	\end{enumerate}
+\end{description}
+
+Using the linear cryptanalysis Matsui \cite{matsuiAttack} was able to break DES in the full number of rounds using $2^{43}$ random plaintext/ciphertext pairs.
+
+\subsection{Differential cryptanalysis}
+
+It is chosen plaintext attack; an attacker owns some number of plaintext/ciphertext pairs, and he can choose specific plaintexts. 
+
+The attack is based on dependence between differences of two plaintexts and corresponding outputs. Differences are computed using exclusive xor operation of whole block, for example difference between two plaintexts $X_{1}$ and $X_{2}$ is denoted by $\Delta X = X_{1} \bigoplus X_{2}$. The difference between outputs $Y_{1}$ and $Y_{2}$ is expressed by $\Delta Y = Y_{1} \bigoplus Y_{2}$. In ideal case the probability $p$, of getting difference $\Delta Y$ for some  $\Delta X$, should be $\frac{1}{2^{n}}$ (differences should be equally distributed). 
+
+The idea behind the attack is looking for the pair ($\Delta X$, $\Delta Y$) which maximizes the probability $p$ of obtaining difference $\Delta Y$ for plaintext $\Delta X$. The pair ($\Delta X$, $\Delta Y$) is called \textit{differential}.
+
+Heys in his tutorial \cite{human-cryptanalysis} was simulating an attack using differential analysis with three round \textit{differential} ($\Delta U_{4}$ stands for a difference between inputs to fourth round). He found out that SPN for the plaintext difference $\Delta P = [0000$ $1011$ $0000$ $0000]$ results with $\Delta U_{4} = [0000$ $0110$ $0000$ $0110]$ with probability $\frac{27}{1024}$. Given this approximation it is possible to obtain bits of $K_{5}$ following steps below.
+
+\begin{enumerate}
+	\item Collect N plaintext pairs which satisfy chosen difference $\Delta P$.
+	\item Generate all possible options for $K_{5}$ ($2^{16}$).
+	\item For each plaintext pair and each option of key do following steps.
+	\begin{enumerate}
+		\item Reversely compute bits of $U_{4}$ for both corresponding ciphertexts using guessed key.
+		\item For each key remember the number of times computed values give expected difference $\Delta U_{4}$.
+	\end{enumerate}
+	\item A key with the largest computed number is considered correct guess.
+\end{enumerate}
+
+DES in full round has been broken with complexity less than $2^{55}$. \cite{Biham1991}
 
 \section{Distinguishers from truly random streams}
 
-One of the most important property of output from cryptographic primitive is its indistinguishability from truly random data. This is why most automatic tools for analysing cryptographic primitives are based on this fact. Those tools relies on so called empirical tests of randomness. Each tool contains several tests, where each of them has different approach of testing. Mostly they are based on some property where there is high probability that truly random generator will satisfy this property. By comparing the expected and actual results for some property we can find out so called \textit{bias}. Higher the bias is, there is less probablility that truly random generator outputted tested sequence.
+One of the most critical properties of output from cryptographic primitive is its indistinguishability from truly random data. Automatic tools for analyzing cryptographic primitives are based on this fact. Those tools rely on so-called empirical tests of randomness. Each tool contains several tests, where each of them has a different approach to testing. Mostly they are based on some property where there is a high probability that a truly random generator will satisfy this property. By comparing the expected and actual form of data, we can find out \textit{bias}. Higher the bias is, there is less probability that truly random generator outputted tested sequence.
 
-Tests are based on testing \textit{null hypothesis}, which is mostly formulated as data being tested are random. However those tests are based only on probability, this means that even truly random data may end up with bad results. The output of each test is so called \textit{p-value} which can be described as probability that a truly random generator produces data which are less random than the data which were tested. To interpret the result we have significance level commonly known as $\alpha$. If p-value is less than significance level we say we rejected the hypothesis on significance level $\alpha$. The common value of $\alpha$ is 0.01. \cite{nist-explanation}
+Tests are based on testing a \textit{null hypothesis}, which is mostly formulated as data being tested are random. Those tests are based on probability; this means that even truly random data may end up with bad results from those tools. The output of each test is called \textit{p-value} which can be described as a probability that a truly random generator produces data which are less random than the data which were tested. We interpret the tests with respect to a significance level which is commonly known as $\alpha$. If the resulting \textit{p-value} is less than the significance level we say we rejected the hypothesis on significance level $\alpha$ (data are probably not coming from a truly random generator). The common value of $\alpha$ is 0.01. \cite{nist-explanation}
 
-There are two types of errors which may occur during interpretation, Type I and Type II. Type I means that truly random data were rejected. The probability of Type I error is significance level $\alpha$. Type II error is when data from bad generator are not rejected. This is denoted by $\beta$, however it is much harder to compute value of $\beta$ because there are many possible types non-randomness which may occur. \cite{nist-explanation}
+There are two types of errors which may occur during interpretation, Type I and Type II. Type I means that truly random data were rejected. The probability of Type I error is equal to significance level $\alpha$. When a tool does not reject data from a faulty generator, Type II error occurred. The probability of this error is denoted by $\beta$. However it is hard to compute the value of $\beta$ because there are many possible types of non-randomness which might occur. \cite{nist-explanation}
 
-The very basic and the easiest test to understand is Monobit test, which is testing uniformity of distribution of binary zeroes and ones bits within tested data. It is based on the fact, that there is high probability that the amount of binary ones and zeroes is approximately the same assuming that each sequence occurs with same probability. High-level view of this test is shown in \cref{fig:monobit}. 
+The example of the primary test often included in statistical test suites is a Monobit test, which is examining the uniformity of distribution of binary zeroes and ones bits within tested data. It is based on the fact, that there is a high probability that the amount of binary ones and zeroes is approximately the same assuming that each sequence occurs with same probability. A high-level view of this test is shown in \cref{fig:monobit}. 
 
 \begin{figure}[h]
 	\centering
@@ -238,7 +343,7 @@ The very basic and the easiest test to understand is Monobit test, which is test
 	\label{fig:monobit}
 \end{figure}
 
-\cref{fig:whole-suite} shows high level view of whole test suite, where all tests are triggered. After evaluation of all tests, it is necessary to interpret whole run and make final decision, whether investigated data are considered truly random or not. It is quite likely that even for data with perfect properties few tests fails. Our interpretation was not based only on number of failed tests, but also on  extremeness of test failures. For example if there was one failed test within whole test suite with extreme p-value (less than $10^{-7}$) it is considered failure. On the other hand if there was even 3 failed tests with p-values close to $\alpha$, not so extreme, it is still considered as non-failure.
+\cref{fig:whole-suite} shows a high-level view of the whole test suite, where all tests are triggered. After evaluation of all tests, it is necessary to interpret the entire run of the battery of tests and make a final decision, whether investigated data are considered genuinely random or not. It is likely that even data with perfect properties will fail some of the tests. Our interpretation was not based only on the number of failed tests, but also on extremeness of test failures. For example, if there was one failed test within the whole test suite with an extreme p-value (less than $10^{-7}$), it is considered failure. However, if there were three failed tests with p-values close to $\alpha$ (not so extreme), it is still viewed as non-failure.
 
 \begin{figure}[h]
 	\centering
@@ -248,32 +353,30 @@ The very basic and the easiest test to understand is Monobit test, which is test
 \end{figure}
 
 \subsection{NIST STS}
-{NIST STS}~\cite{nist-sts} is most commonly used software tool for statistical analysis. It was developed by National Institute Of Standards and Technology (NIST) and is also part of FIPS 140-2~\cite{nist-fips-140-2} certification process. Even thought the STS test suite is most commonly used, the other testsuites have generally better results.
+{NIST STS}~\cite{nist-sts} is the most commonly used software tool for statistical analysis. It was developed by National Institute Of Standards and Technology (NIST) and is also part of FIPS 140-2~\cite{nist-fips-140-2} certification process. Even though the STS test suite is most commonly used, some of the other test suites generally have better results.
 
 In this thesis we will not use original NIST implementation, instead of that we are using optimized version developed Marek Sýs and Zdeněk Říha which is approximately 50 times faster than reference implementation \cite{Sys:2016:A9O:2988516.2988228}. 
 
 The tool contains 15 tests. However few of them have more variants. Therefore altogether 188 tests are executed within one run.
 
-\subsection{Dieharder}
-
-Dieharder~\cite{dieharder} is an extension of Diehard test suite \cite{diehard} developed by Robert G. Brown at Duke University. In newest version It contains together 31 tests. All tests from Diehard, three originates from NIST STS and the other implemented by the author or from different sources. However not all tests will be used within this thesis, with choosing which tests to run and which not we rely on project Randomness testing toolkit~\cite{Obratil2017thesis}
+Dieharder~\cite{dieharder} is an extension of Diehard test suite \cite{diehard} developed by Robert G. Brown at Duke University. In the newest version, It contains together 31 tests. All tests from Diehard, three originates from NIST STS and the others are implemented by the author or come from different sources. However, not all tests will be used within this thesis. For choosing what tests to run we rely on project Randomness testing toolkit~\cite{Obratil2017thesis}.
 
 \subsection{TestU01}
 
-TestU01 software tool was introduced by Pierre L'Ecuyer and Richard Simard. The aim of this tool is provision of general and extensive set of software tools for statistical testing of random number generators. It contains big amount of tests, more than any other software tool mentioned above. Tests are organized into 6 batteries of tests. Battery of tests is simply subset of tests, where each battery has different purpose or time consuption. Batteries within TestU01 are divided into two categories, three of them designed for sequences of real numbers and the other for bit sequences. 
+Pierre L'Ecuyer and Richard Simard introduced TestU01 software tool. The aim of this tool is the provision of the general and extensive set of software tools for statistical testing of random number generators. It contains a significant amount of tests, more than any other software tool we mentioned. Tests are organized into six batteries of tests. The battery of tests is a subset of tests, where each battery has a different purpose or time consumption. Batteries within TestU01 are divided into two categories, three of them designed for sequences of real numbers and the other for bit sequences.
 
-For the first category there are batteries named \textit{SmallCrush}, \textit{Crush} and \textit{BigCrush}. \textit{SmallCrush} is fastest battery, hence it is recommended to start testing with this one and continue to \textit{Crush} only if sequence pass all tests. \textit{BigCrush} is longest one, for the idea it consumes 1414 times more time than \textit{SmallCrush} and 5 times more time than \textit{Crush} to test \textit{Mersenne Twister}~\cite{Matsumoto:1998:MTE:272991.272995} PRNG on a computer with AMD Athlon running at 2.4GHz. For binary sequences there are batteries \textit{Rabbit}, \textit{Alphabit} and \textit{BlockAlphabit}. \cite{l2007testu01}
+For the first category there are batteries named \textit{SmallCrush}, \textit{Crush} and \textit{BigCrush}. \textit{SmallCrush} is fastest battery, hence it is recommended to start testing with this one and continue to \textit{Crush} only if sequence pass all tests. \textit{BigCrush} is longest one, it consumes 1414 times more time than \textit{SmallCrush} and 5 times more time than \textit{Crush} to test \textit{Mersenne Twister}~\cite{Matsumoto:1998:MTE:272991.272995} PRNG on a computer with AMD Athlon running at 2.4GHz. For binary sequences there are batteries \textit{Rabbit}, \textit{Alphabit} and \textit{BlockAlphabit}. \cite{l2007testu01}
 
 Besides the batteries this software tool contains also some predefined pseudo-random number generators. Paper~\cite{l2007testu01} contains also results of those generators with batteries \textit{SmallCrush}, \textit{Crush} and \textit{BigCrush}.
 
 \subsection{BoolTest}
 
-BoolTest is simple but strong testing tool developed by Marek Sýs et. al at the Centre for Research on Cryptography and Security, Masaryk University in Brno. It has slightly different approach to randomness testing. It is a generalization of Monobit test. It is based on the idea of looking for distinguisher, between truly random and tested data, in the form of boolean function. If a distinguisher is found the data are considered non-random otherwise random. The process starts with dividing sequence into blocks with size \textit{m}. The boolean function is in the form $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m})$. Notice that Monobit test is specific case of this generalization with $m = 1$ and boolean function $f(x_{1}) = x_{1}$. 
+BoolTest is simple but a strong testing tool developed by Marek Sýs et al. at the Centre for Research on Cryptography and Security, Masaryk University in Brno. It has a slightly different approach to randomness testing. The tool is based on a generalization of Monobit test. The main idea is looking for distinguisher between truly random and tested data in the form of boolean function. If a distinguisher is found the data are considered non-random otherwise random. The process starts with a division of sequence into blocks with size \textit{m}. The boolean function is in the form $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m})$. Notice that Monobit test is specific case of this generalization with $m = 1$ and boolean function $f(x_{1}) = x_{1}$. 
 
-Computation of distinguisher success is easy process. Simply take all blocks of size \textit{m} and for each compute result of boolean function where $x_{k}$ is k-th bit of the block.
-Expected number of computations with result binary one is computed and compared with actual results with Z-score statistic \cite{sheskin2003handbook}. This leads to resulting p-value. The more actual number distinguish from expected number, the better distinguisher we have.
+Computation of success of distinguisher requires calculation of the value of the boolean function for each block so that $x_{k}$ is k-th bit of the block.
+Expected number of computations which results with binary one is statistically computed and compared with actual results using Z-score statistic \cite{sheskin2003handbook}. This produces p-value. The more actual number of results which equals to one distinguish from the expected number, the better distinguisher we have.
 
-Construction of distinguisher is based on assumption that stronger and more complicated distinguishers can be constructed by combination of weaker and simpler ones. The run starts with brute-force evaluation of all possible boolean functions of type  $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m}) = x_{i}$ for $\forall i \in \{1, 2, \cdot \cdot \cdot, m\}$. It is also possible to choose more complex functions in this phase, but it cannot be too complicated as it is necessary to brute-force all possible functions. Then some number of best distiguishers is chosen to second phase in which they are combined them together with XOR operation. This approach has two main advantages: it is possible to use precomputed values from first phase and it is possible to stop evaluation at any time when reasonably strong distinguisher is found. If no strong distinguisher is found tested data are considered random. \cite{booltest-secrypt2017}
+Construction of distinguisher is based on the assumption that a combination of weaker and simpler boolean functions may lead to stronger distinguisher. The process starts with brute-force evaluation of all possible boolean functions of type  $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m}) = x_{i}$ for $\forall i \in \{1, 2, \cdot \cdot \cdot, m\}$ with possibility to choose more complex functions in this phase. However, it cannot be too complicated as it is necessary to brute-force all possible functions. The second phase captures some number of best distinguishers which are then combined with XOR operation. This approach has two main advantages: it is possible to use precomputed values from the first phase, and it is possible to stop evaluation at any time when reasonably strong distinguisher is found. If no strong distinguisher is found tested data are considered random. \cite{booltest-secrypt2017}
 
 \begin{figure}[h]
 	\centering
@@ -549,7 +652,7 @@ Besides the main loop, functions mostly contain also key scheduling, initial and
 
 The first scenario is testing all functions with test vectors in full number of rounds. Test vectors were taken over from project FELICS. 
 
-The second test scenario is verifying the expected functionality of round-reduction by doing encryption followed by decryption (Encrypt-Decrypt test) for all rounds provided by tested function. This test is not passing for 6 functions out of 19 (failing marked with \textit{\xmark} in last column in \cref{table:list-of-investigated functions}. The possible explanation of failure is missing round-reduction of key scheduling, which we intentionally do not perform. Despite the failure of the test we observed expected behavior concerning detectable bias by statistical testing - more rounds result in less bias.
+The second test scenario is verifying the expected functionality of round-reduction by doing encryption followed by decryption (Encrypt-Decrypt test) for all rounds provided by tested function. This test is not passing for 6 functions out of 19 (failing marked with \textit{\xmark} in last column in \cref{table:list-of-investigated functions}. The possible explanation of failure is missing round-reduction of key scheduling, which we intentionally do not perform. Despite the failure of the test we observed expected behavior concerning detectable bias by statistical testing - more rounds results in less bias.
 
 \begin{table}[t]
 	\centering
