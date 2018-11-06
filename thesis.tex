@@ -221,32 +221,34 @@ Random number generator is everything which produces random outcome. In real wor
 
 Security of PRNG is based on seed; it should be kept secret and generated so that it is unpredictable and truly random.
 
-The PRNG algorithm is based on deterministic function $f$. The process of generation is shown in \cref{fig:prng} and can be expressed by $X_n = f(X_{n - 1})$, where $X_{n}$ denotes $n$-th output from generator and $X_{0}$ represent seed.
+The PRNG algorithm is based on deterministic function $f$. For obtaining $n$-th output from generator formula $X_n = f(X_{n - 1})$ is used, where $X_0$ denotes seed. Schema of generation is shown in \cref{fig:prng}. 
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./images/pictures/prng.png}
-	\caption{Example of schema for linear congruential pseudo random number generator with function $f(X) \equiv \left(2 \times X~\bmod~10 \right)$ which has for this seed the period of size 4.}
+	\caption{Example of schema for linear congruential pseudo random number generator with function $f(X) \equiv \left(2 \times X~\bmod~10 \right)$. Period for this seed is four.}
 	\label{fig:prng}
 \end{figure}
 
-The function $f$ is defined to take and produce sequences with fixed size (for example 4 bytes). This means there is finitely many options of inputs and corresponding outputs which eventually leads to repetitions. The number of iterations before first duplicity is called the \textit{period}. Generators are created so that the \textit{period} is maximized. When choosing prng for application the \textit{period} should be taken into account; it must be chosen so that it never reach that number. However, this can be achieved by regular reseeding with random data.
+The function $f$ is defined to take and produce sequences with fixed size (for example 4 bytes). This means there is finitely many options of inputs and corresponding outputs what eventually leads to repetitions. The number of iterations before first duplicity is called the \textit{period}. Generators are created so that the \textit{period} is maximized. When choosing PRNG for application the \textit{period} should be taken into account; it must be chosen so that the period is never reached. However, this can be achieved by regular reseeding with random data. A simple example of generator with period four is shown in \cref{fig:prng}.
 
 Each sequence produced by PRNG must look random. This means it should pass all empirical tests of randomness (this is covered in \cref{sec:statistical-tests}). \cite{schneier1996applied}
 
-For using those generators within sensitive application (such as cryptographic application) they need to fulfill one more requirement. It must be unfeasible to compute following bit given that the attacker knows all information about the sequence (including algorithm and hardware specification). Such generators are called cryptographically secure pseudo-random generators. \cite{schneier1996applied}
+For using PRNG within sensitive applications (such as cryptographic application) they need to fulfill one more requirement. It must be unfeasible to compute any information about following output given that the attacker knows all information about the previously generated sequence (including algorithm and hardware specification). Such generators are called cryptographically secure pseudo-random generators. \cite{schneier1996applied}
 
 \section{Constructions techniques}
 
-We divide generators into following three categories.
+In this thesis we present following three categories of PRNGs.
 
 \begin{description}
-	\item[Simple (pure) generators.] Those are mostly based on some mathematical formula. Most commonly known generator of this type is linear congruential generator (LCG). The formula is following. \cite{LEcuyer07testu01}
+	\item[Simple (pure) generators.] The function $f$ is mostly some simple mathematical formula. Commonly known generator of this type is linear congruential generator (LCG). The formula is following. \cite{LEcuyer07testu01}
 	
 	\begin{equation}
 	x_{n+1} = \left( a \times x_n + c \right)~~\bmod~~m
 	\label{formula:lcg}
 	\end{equation}	
+	
+	Where \textit{a, c, m} are fixed parameters for specific generator. Simple example of LCG is shown in \cref{fig:prng}. 
 
 \end{description} 
 
