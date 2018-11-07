@@ -234,11 +234,11 @@ The function $f$ is defined to take and produce sequences with fixed size (for e
 
 Each sequence produced by PRNG must look random. This means it should pass all empirical tests of randomness (this is covered in \cref{sec:statistical-tests}). \cite{schneier1996applied}
 
-For using PRNG within sensitive applications (such as cryptographic application) they need to fulfill one more requirement. It must be unfeasible to compute any information about following output given that the attacker knows all information about the previously generated sequence (including algorithm and hardware specification). Such generators are called cryptographically secure pseudo-random generators. \cite{schneier1996applied}
+For using PRNG within sensitive applications (such as cryptographic application) it needs to fulfill one more requirement. It must be unfeasible to compute any information about following output given that the attacker knows all information about the previously generated sequence (including algorithm and hardware specification). Such generators are called cryptographically secure pseudo-random generators (CSPRNG). \cite{schneier1996applied}
 
 \section{Constructions techniques}
 
-In this thesis we present following three categories of PRNGs.
+In this thesis we distinguish between following two categories of PRNGs.
 
 \begin{description}
 	\item[Simple (pure) generators.] The function $f$ is mostly some simple mathematical formula. Commonly known generator of this type is linear congruential generator (LCG). The formula is following. \cite{LEcuyer07testu01}
@@ -248,12 +248,22 @@ In this thesis we present following three categories of PRNGs.
 	\label{formula:lcg}
 	\end{equation}	
 	
-	Where \textit{a, c, m} are fixed parameters for specific generator. Simple example of LCG is shown in \cref{fig:prng}. 
+	Where \textit{a, c, m} are fixed parameters for specific generator. Simple example of LCG with $a = 2$, $c = 0$ and $m = 10$ is shown in \cref{fig:prng}. 
+	
+	\item[PRNGs based on cryptographic primitives.] Each cryptographic primitive (e.g. block cipher or hash function) can be easily turned into PRNG. For example, standardized generator ANSI X9.17/ANSI X9.31 \cite{ansi1985american} uses Triple-DES or AES \cite{Keller05nist-recommendedrandom}. However, this scheme could be used with any other cryptographic primitive as a provider of pseudo-randomness. The security of resulting generator is proportional to security of used primitive. The primitive also guarantees unfeasibility to compute next value given previous sequence, which means those generators are mostly cryptographically secure. In this thesis we rely on this fact, hence we are testing directly cryptographic primitives instead of using any schemes.
 
 \end{description} 
 
+\section{Usage of PRNGs in cryptography}
 
-SIMPLE (PURE), Stream ciphers, block/hash fncs
+CSPRNGs in cryptography are used for several purposes for example, for generation of keys, initialization vectors, but also for encryption and decryption (symmetric ciphers). In this section we are looking closer to last usage.
+
+One-time pad is cryptosystem with perfect secrecy. For encryption it uses simple bit by bit \texttt{XOR} of plaintext with large truly random, non-repeating sequence as a key. The only disadvantage is that the size of key must be greater or equal to size of message and the distribution of such key is too complicated. \cite{schneier1996applied}
+
+Stream ciphers were introduced with similar principle in mind as one-time pad. However, instead of using long truly random sequence as the key an output from CSPRNG is used. The ciphertext $C$ is created from plaintext $P$ and keystream (generated from CSPRNG) $K$ as follows: $C_{i} = P_{i} \oplus K_{i}$, for each bit in plaintext. For an encrypted communication the key distributed, which is nothing else than a seed for CSPRNG and both sides can produce same keystream (for more information see \cite{schneier1996applied}). Stream ciphers are useful for long streams (such as audio or video streams), especially for their zero error propagation, this means if one bit is flipped during data transfer over network, only one bit is flipped in decrypted plaintext. For example if same situation occurs with block cipher whole block is broken after decryption.
+
+
+Block ciphers into stream cipher mode.
 
 \section{Typical attacks}
 Nextbit, prevbit, seed/state recovery
