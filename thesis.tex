@@ -270,21 +270,21 @@ Nextbit, prevbit, seed/state recovery
 
 \section{Human cryptanalysis}
 
-In this section, we present two cryptanalysis techniques. Both of them are very powerful; however, they are not fully automated. The cooperation with cryptanalyst is necessary. The first is Linear cryptanalysis which was introduced by Matsui \cite{matsui1993linear} in 1993 as a theoretical attack on Data Encryption Standard (DES). The other is differential cryptanalysis and was proposed by Biham and Shamir \cite{Biham1991} in 1991 with the same objective, to attack DES.
+This section presents two cryptanalysis techniques - a linear and differential cryptanalysis. Both of them are powerful; however, they are not fully automated. The cooperation with cryptanalyst is necessary. The first was introduced by Matsui \cite{matsui1993linear} in 1993 as a theoretical attack on Data Encryption Standard (DES). The other was proposed by Biham and Shamir \cite{Biham1991} in 1991 with the same objective, to attack DES.
 
 
 \subsection{Linear cryptanalysis}
 
-It is one of the most famous known plaintext attacks against block ciphers; attacker knows some number of plaintext/ciphertext pairs, but he is not able to choose specific ones. 
+It is one of the most famous known plaintext attacks against block ciphers; the assumption is that attacker knows some number of plaintext/ciphertext pairs, but he is not able to choose specific ones. 
 
 The attack is based on building a linear approximation of part of a block cipher (non-linear), which consists of bits of plaintext, ciphertext, and key (round subkey). The general form of such approximation is following: 
 \begin{equation}
 \left( \bigoplus_{i \in \{1...b\}} P_{i} \right) \oplus \left( \bigoplus_{j \in \{1...b\}} C_{j} \right) = \left( \bigoplus_{k \in \{1...s\}} K_{k} \right)
 \label{eq:general_approx}
 \end{equation}
-where $P_{i}$, $C_{j}$ and $K_{k}$ denote $i,j,k$-th bit of plaintext, ciphertext and key respectively. $\oplus$ stands for boolean \texttt{XOR} operator. Variables b and s are function specific and represent block size and key size. \cite{junod2000linear} 
+where $P_{i}$, $C_{j}$ and $K_{k}$ denote $i,j,k$-th bit of plaintext, ciphertext and key respectively. $\oplus$ stands for Boolean \texttt{XOR} operator. Variables $b$ and $s$ are function-specific and represent block size and key size. \cite{junod2000linear} 
 
-Given such approximation and perfect cipher, the probability that this approximation holds should be $p = \frac{1}{2}$. Probability $p$ can be computed from the structure of investigated function. For purposes of the attack we need to find approximation which maximizes the bias $\epsilon = \lvert p - \frac{1}{2} \rvert$. 
+Given such approximation and a perfect cipher, the probability that this approximation holds should be on average $p = \frac{1}{2}$. Probability $p$ can be computed from the structure of the investigated function. For purposes of the attack we need to find an approximation which maximizes the bias $\epsilon = \lvert p - \frac{1}{2} \rvert$. 
 
 The linear approximation can be used to perform two types of attacks:
 
@@ -349,7 +349,7 @@ Using the linear cryptanalysis Matsui \cite{matsuiAttack} was able to break DES 
 
 \subsection{Differential cryptanalysis}
 
-It is chosen plaintext attack; an attacker owns some number of plaintext/ciphertext pairs, and he can choose specific plaintexts. 
+It is chosen plaintext attack; an attacker owns some number of plaintext/ciphertext pairs for an fixed unknown key, and he can choose specific plaintexts. 
 
 The attack is based on dependence between differences of two plaintexts and corresponding outputs. Differences are computed using exclusive xor operation of whole block, for example difference between two plaintexts $X_{1}$ and $X_{2}$ is denoted by $\Delta X = X_{1} \bigoplus X_{2}$. The difference between outputs $Y_{1}$ and $Y_{2}$ is expressed by $\Delta Y = Y_{1} \bigoplus Y_{2}$. In ideal case the probability $p$, of getting difference $\Delta Y$ for some  $\Delta X$, should be $\frac{1}{2^{n}}$ (differences should be equally distributed). 
 
@@ -373,13 +373,13 @@ DES in full round has been broken with complexity less than $2^{55}$. \cite{Biha
 \section{Distinguishers from truly random streams}
 \label{sec:statistical-tests}
 
-One of the most critical properties of output from cryptographic primitive is its indistinguishability from truly random data. Automatic tools for analyzing cryptographic primitives are based on this fact. Those tools rely on so-called empirical tests of randomness. Each tool contains several tests, where each of them has a different approach to testing. Mostly they are based on some property where there is a high probability that a truly random generator will satisfy this property. By comparing the expected and actual form of data, we can find out \textit{bias}. Higher the bias is, there is less probability that truly random generator outputted tested sequence.
+One of the most important properties of output from cryptographic primitive is its indistinguishability from truly random data. Automatic tools for analyzing cryptographic primitives are based on this fact. Those tools rely on so-called empirical tests of randomness. Each tool contains several tests, where each of them has a different approach to testing. Mostly they are based on some property where there is a high probability that a truly random generator will satisfy this property. By comparing the expected and actual form of data, we can find out \textit{bias}. Higher the bias is, there is less probability that truly random generator outputted tested sequence.
 
-Tests are based on testing a \textit{null hypothesis}, which is mostly formulated as data being tested are random. Those tests are based on probability; this means that even truly random data may end up with bad results from those tools. The output of each test is called \textit{p-value} which can be described as a probability that a truly random generator produces data which are less random than the data which were tested. We interpret the tests with respect to a significance level which is commonly known as $\alpha$. If the resulting \textit{p-value} is less than the significance level we say we rejected the hypothesis on significance level $\alpha$ (data are probably not coming from a truly random generator). The common value of $\alpha$ is 0.01. \cite{nist-explanation}
+Tests are based on testing a \textit{null hypothesis}, which is mostly formulated as data being tested are random. Those tests are based on probability; this means that even truly random data may end up with rejected hypothesis. The output of each test is called \textit{p-value} which can be described as a probability that a truly random generator produces data which are less random than the data which were tested. We interpret the tests with respect to a significance level which is commonly denoted as $\alpha$. If the resulting \textit{p-value} is less than the significance level we say we rejected the hypothesis on significance level $\alpha$ (data are probably not coming from a truly random generator). The common value of $\alpha$ is 0.01. \cite{nist-explanation}
 
 There are two types of errors which may occur during interpretation, Type I and Type II. Type I means that truly random data were rejected. The probability of Type I error is equal to significance level $\alpha$. When a tool does not reject data from a faulty generator, Type II error occurred. The probability of this error is denoted by $\beta$. However it is hard to compute the value of $\beta$ because there are many possible types of non-randomness which might occur. \cite{nist-explanation}
 
-The example of the primary test often included in statistical test suites is a Monobit test, which is examining the uniformity of distribution of binary zeroes and ones bits within tested data. It is based on the fact, that there is a high probability that the amount of binary ones and zeroes is approximately the same assuming that each sequence occurs with same probability. A high-level view of this test is shown in \cref{fig:monobit}. 
+The example of the common test often included in statistical test suites is a Monobit test, which is examining the uniformity of distribution of binary zeroes and ones bits within tested data. It is based on the fact, that there is a high probability that the amount of binary ones and zeroes is approximately the same assuming that each sequence occurs with same probability. A high-level view of this test is shown in \cref{fig:monobit}. 
 
 \begin{figure}[h]
 	\centering
@@ -388,7 +388,7 @@ The example of the primary test often included in statistical test suites is a M
 	\label{fig:monobit}
 \end{figure}
 
-\cref{fig:whole-suite} shows a high-level view of the whole test suite, where all tests are triggered. After evaluation of all tests, it is necessary to interpret the entire run of the battery of tests and make a final decision, whether investigated data are considered genuinely random or not. It is likely that even data with perfect properties will fail some of the tests. Our interpretation was not based only on the number of failed tests, but also on extremeness of test failures. For example, if there was one failed test within the whole test suite with an extreme p-value (less than $10^{-7}$), it is considered failure. However, if there were three failed tests with p-values close to $\alpha$ (not so extreme), it is still viewed as non-failure.
+\cref{fig:whole-suite} shows a high-level view of the whole test suite, where all tests are triggered. After evaluation of all tests, it is necessary to interpret the entire run of the battery of tests and make a final decision, whether investigated data are considered genuinely random or not. It is likely that even data with perfect properties will fail some of the tests due to Type I error. Our interpretation was not based only on the number of failed tests, but also on extremeness of test failures. For example, if there was one failed test within the whole test suite with an extreme p-value (less than $10^{-7}$), it is considered failure. However, if there were three failed tests with p-values close to $\alpha$ (not so extreme), it is still viewed as non-failure.
 
 \begin{figure}[h]
 	\centering
@@ -400,15 +400,17 @@ The example of the primary test often included in statistical test suites is a M
 \subsection{NIST STS}
 {NIST STS}~\cite{nist-sts} is the most commonly used software tool for statistical analysis. It was developed by National Institute Of Standards and Technology (NIST) and is also part of FIPS 140-2~\cite{nist-fips-140-2} certification process. Even though the STS test suite is most commonly used, some of the other test suites generally have better results.
 
-In this thesis we will not use original NIST implementation, instead of that we are using optimized version developed Marek Sýs and Zdeněk Říha which is approximately 50 times faster than reference implementation \cite{Sys:2016:A9O:2988516.2988228}. 
+In this thesis we will not use original NIST STS implementation, instead of that we are using optimized version developed Marek Sýs and Zdeněk Říha which is approximately 50 times faster than reference implementation \cite{Sys:2016:A9O:2988516.2988228}. 
 
-The tool contains 15 tests. However few of them have more variants. Therefore altogether 188 tests are executed within one run.
+The tool contains 15 tests. However several of them have more variants. In total, 188 tests are executed within one run.
 
-Dieharder~\cite{dieharder} is an extension of Diehard test suite \cite{diehard} developed by Robert G. Brown at Duke University. In the newest version, It contains together 31 tests. All tests from Diehard, three originates from NIST STS and the others are implemented by the author or come from different sources. However, not all tests will be used within this thesis. For choosing what tests to run we rely on project Randomness testing toolkit~\cite{Obratil2017thesis}.
+\subsection{Dieharder}
+
+Dieharder~\cite{dieharder} is an extension of Diehard test suite \cite{diehard} developed by Robert G. Brown at Duke University. In the newest version, it contains together 31 tests. All tests from Diehard, three originates from NIST STS and the others are implemented by the author or come from different sources. However, not all tests will be used within this thesis. For choosing what tests to run we rely on project Randomness Testing Toolkit~\cite{Obratil2017thesis}.
 
 \subsection{TestU01}
 
-Pierre L'Ecuyer and Richard Simard introduced TestU01 software tool. The aim of this tool is the provision of the general and extensive set of software tools for statistical testing of random number generators. It contains a significant amount of tests, more than any other software tool we mentioned. Tests are organized into six batteries of tests. The battery of tests is a subset of tests, where each battery has a different purpose or time consumption. Batteries within TestU01 are divided into two categories, three of them designed for sequences of real numbers and the other for bit sequences.
+Pierre L'Ecuyer and Richard Simard introduced TestU01 software tool. The aim of this tool is the provision of the general and extensive set of software tools for statistical testing of random number generators. It contains a significant number of tests, more than any other software tool we mentioned. Tests are organized into six batteries of tests. The battery of tests is a subset of tests, where each battery has a different purpose or time consumption. Batteries within TestU01 are divided into two categories, three of them designed for sequences of real numbers and the other for bit sequences.
 
 For the first category there are batteries named \textit{SmallCrush}, \textit{Crush} and \textit{BigCrush}. \textit{SmallCrush} is fastest battery, hence it is recommended to start testing with this one and continue to \textit{Crush} only if sequence pass all tests. \textit{BigCrush} is longest one, it consumes 1414 times more time than \textit{SmallCrush} and 5 times more time than \textit{Crush} to test \textit{Mersenne Twister}~\cite{Matsumoto:1998:MTE:272991.272995} PRNG on a computer with AMD Athlon running at 2.4GHz. For binary sequences there are batteries \textit{Rabbit}, \textit{Alphabit} and \textit{BlockAlphabit}. \cite{l2007testu01}
 
@@ -416,17 +418,17 @@ Besides the batteries this software tool contains also some predefined pseudo-ra
 
 \subsection{BoolTest}
 
-BoolTest is simple but a strong testing tool developed by Marek Sýs et al. at the Centre for Research on Cryptography and Security, Masaryk University in Brno. It has a slightly different approach to randomness testing. The tool is based on a generalization of Monobit test. The main idea is looking for distinguisher between truly random and tested data in the form of boolean function. If a distinguisher is found the data are considered non-random otherwise random. The process starts with a division of sequence into blocks with size \textit{m}. The boolean function is in the form $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m})$. Notice that Monobit test is specific case of this generalization with $m = 1$ and boolean function $f(x_{1}) = x_{1}$. 
+BoolTest is simple but a strong testing tool developed by Marek Sýs et al. at the Centre for Research on Cryptography and Security, Masaryk University in Brno. It has a slightly different approach to randomness testing. The tool is based on a generalization of Monobit test. The main idea is looking for distinguisher between truly random and tested data in the form of Boolean function. If a distinguisher is found the data are considered non-random. The process starts with a division of sequence into blocks with size \textit{m}. The Boolean function is in the form $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m})$. Notice that Monobit test is specific case of this generalization with $m = 1$ and Boolean function $f(x_{1}) = x_{1}$. 
 
-Computation of success of distinguisher requires calculation of the value of the boolean function for each block so that $x_{k}$ is $k$-th bit of the block.
-Expected number of computations which results with binary one is statistically computed and compared with actual results using Z-score statistic \cite{sheskin2003handbook}. This produces p-value. The more actual number of results which equals to one distinguish from the expected number, the better distinguisher we have.
+Computation of success of distinguisher requires calculation of the value of the Boolean function for each block so that $x_{k}$ is $k$-th bit of the block.
+Expected number of computations which results with binary one is statistically computed and compared with actual results using Z-score statistics \cite{sheskin2003handbook}. This produces p-value.
 
-Construction of distinguisher is based on the assumption that a combination of weaker and simpler boolean functions may lead to stronger distinguisher. The process starts with brute-force evaluation of all possible boolean functions of type  $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m}) = x_{i}$ for $\forall i \in \{1, 2, \cdot \cdot \cdot, m\}$ with possibility to choose more complex functions in this phase. However, it cannot be too complicated as it is necessary to brute-force all possible functions. The second phase captures some number of best distinguishers which are then combined with XOR operation. This approach has two main advantages: it is possible to use precomputed values from the first phase, and it is possible to stop evaluation at any time when reasonably strong distinguisher is found. If no strong distinguisher is found tested data are considered random. \cite{booltest-secrypt2017}
+Construction of distinguisher is based on the assumption that a combination of weaker and simpler Boolean functions may lead to stronger distinguisher. The process starts with brute-force evaluation of all possible Boolean functions of type  $f(x_{1}, x_{2}, \cdot \cdot \cdot, x_{m}) = x_{i}$ for $\forall i \in \{1, 2, \cdot \cdot \cdot, m\}$ with possibility to choose more complex functions in this phase. However, it cannot be too complicated as it is necessary to brute-force all possible functions. The second phase captures some number of best distinguishers which are then combined with XOR operation. There are two ways how to optimize this approach: by pre-computation of values from the first phase, and by stopping evaluation at any time when reasonably strong distinguisher is found. If no strong distinguisher is found tested data are considered random. \cite{booltest-secrypt2017}
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.8\textwidth]{./images/pictures/bool-test.png}
-	\caption{Example of evaluation with BoolTest for sequence of size 72 bits with block size 12 and number of blocks 6. Evaluated boolean function (distinguisher) is $f(x_1,x_2, . . . x_{12}) = x_4+x_9$.}
+	\caption{Example of evaluation with BoolTest for sequence of size 66 bits with block size 11 and number of blocks 6. Evaluated Boolean function (distinguisher) is $f(x_1,x_2, . . . x_{11}) = x_4+x_9$.}
 	\label{fig:bool-test}
 \end{figure}
 
