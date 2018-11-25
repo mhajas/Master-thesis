@@ -254,6 +254,8 @@ In this thesis, we distinguish between following two categories of PRNGs.
 	
 	Where \textit{a, c, m} are fixed parameters for specific generator. Simple example of LCG with $a = 2$, $c = 0$ and $m = 10$ is shown in \cref{fig:prng}. 
 	
+	Mersenne Twister pseudo-random generator was introduced by Makoto Matsumoto and Takuji Nishimura~\cite{Matsumoto:1998:MTE:272991.272995} in 1998. It is extended version of TGFSR~\cite{matsumoto1992twisted} (twisted generalized feedback shift register) algorithm. Despite the long period of length $2^{19937} - 1$, Mersenne twister itself is not cryptographically secure PRNG. However, it is possible to create CSPRNG from MT, for example by modifying output by hashing algorithm. This generator is suitable for Monte Carlo simulations.
+	
 	\item[PRNGs based on cryptographic primitives.] Each cryptographic primitive (e.g., block cipher or hash function) can be easily used for generation of pseudo-random sequences. For example, 3-DES or AES are recommended \cite{Keller05nist-recommendedrandom} block ciphers to use in standardized generator ANSI X9.17/ANSI X9.31 (\cref{fig:x9-17}) \cite{ansi1985american}. However, this generator could be used with any other cryptographic primitive as a provider of pseudo-randomness. The security of resulting generator should be proportional to the security of used primitive. The primitive should also guarantee the unfeasibility to compute next value given the previous sequence, which means those generators are mostly cryptographically secure. In this thesis we rely on this fact. Therefore, we are testing cryptographic primitives directly instead of testing generators which encapsulates those primitives.
 
 \end{description} 
